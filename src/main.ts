@@ -1,3 +1,4 @@
+/* NestJS 101: https://wikidocs.net/book/7059 */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
