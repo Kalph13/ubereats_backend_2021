@@ -1,11 +1,12 @@
-import { ArgsType, Field } from "@nestjs/graphql";
-
-/* Class Validator: https://docs.nestjs.com/pipes#class-validator */
+import { ArgsType, Field, InputType, OmitType } from "@nestjs/graphql";
+import { Restaurant } from "../entities/restaurants.entity";
 import { IsBoolean, IsString, Length } from "class-validator";
 
 /* @ArgsType: https://docs.nestjs.com/graphql/resolvers#args-decorator-options */
 /* - Similar to '*.typeDefs.js' of Resolver */
-@ArgsType()
+
+/* Replaced by @InputType */
+/* @ArgsType()
 export class CreateRestaurantDto {
     @Field(type => String)
     @IsString()
@@ -20,4 +21,9 @@ export class CreateRestaurantDto {
     @Field(type => String)
     @IsString()
     ownerName: string;
-}
+} */
+
+/* @InputType: https://docs.nestjs.com/graphql/mapped-types */
+/* - Similar to 'Fragment' */
+@InputType()
+export class CreateRestaurantDto extends OmitType(Restaurant, ['id']) {}
