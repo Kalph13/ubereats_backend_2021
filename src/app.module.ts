@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { RestarantModule } from './restaurants/restaurants.module';
 import { Restaurant } from './restaurants/entities/restaurants.entity';
+import { UserModule } from './users/users.module';
+import { User } from './users/entities/users.entity';
+import { CommonModule } from './common/common.module';
 
 /* GraphQL in NextJS: https://docs.nestjs.com/graphql/quick-start */
 /* GraphQL Playground: http://localhost:3000/graphql */
@@ -42,13 +45,15 @@ import * as Joi from 'joi';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod', /* Must be False in Production (Causes Production Data Loss) */
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [Restaurant]
+      entities: [Restaurant, User]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true
     }),
-    RestarantModule
+    RestarantModule,
+    UserModule,
+    CommonModule
   ],
   controllers: [],
   providers: []

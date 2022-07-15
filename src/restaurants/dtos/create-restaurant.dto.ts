@@ -25,5 +25,6 @@ export class CreateRestaurantDto {
 
 /* @InputType: https://docs.nestjs.com/graphql/mapped-types */
 /* - Similar to 'Fragment' */
+/* OmitType: https://docs.nestjs.com/openapi/mapped-types#omit */
 @InputType()
 export class CreateRestaurantDto extends OmitType(Restaurant, ['id']) {}
