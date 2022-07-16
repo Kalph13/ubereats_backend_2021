@@ -12,6 +12,7 @@ export class RestaurantResolver {
         private readonly restaurantService: RestaurantService
     ) {}
     /* @Query: https://docs.nestjs.com/graphql/resolvers#query-type-names */
+
     @Query(returns => [Restaurant])
     restaurants(): Promise<Restaurant[]> {
         return this.restaurantService.getAll();
@@ -28,6 +29,7 @@ export class RestaurantResolver {
             }
         }
     */
+
     /* @Mutation: https://docs.nestjs.com/graphql/mutations */
     /* @Args: https://docs.nestjs.com/graphql/resolvers#args-decorator-options */    
     @Mutation(returns => Boolean)
@@ -52,6 +54,7 @@ export class RestaurantResolver {
             })
         }
     */    
+   
     @Mutation(returns => Boolean)
     async updateRestaurant(
         @Args('input') updateRestaurantDto: UpdateRestaurantDto

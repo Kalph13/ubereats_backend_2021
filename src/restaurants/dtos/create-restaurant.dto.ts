@@ -12,12 +12,15 @@ export class CreateRestaurantDto {
     @IsString()
     @Length(5, 10)
     name: string;
+
     @Field(type => Boolean)
     @IsBoolean()
     isVegan: boolean;
+
     @Field(type => String)
     @IsString()
     address: string;
+    
     @Field(type => String)
     @IsString()
     ownerName: string;

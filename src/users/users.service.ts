@@ -10,9 +10,11 @@ export class UserService {
         @InjectRepository(User)
         private readonly users: Repository<User>
     ) {}
+
     async getAll(): Promise<User[]> {
         return this.users.find();
     }
+    
     async createAccount({ email, password, role }: CreateAccountInput): Promise<{
         createAccountSucceed: boolean; 
         createAccountError?: string;

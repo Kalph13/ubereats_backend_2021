@@ -18,24 +18,29 @@ export class Restaurant {
     @PrimaryGeneratedColumn()
     @Field(type => Number)
     id: number;
+
     @Field(type => String) /* Connect to GraphQL*/
     @Column() /* Connect to TypeORM*/
     @IsString() /* Validate the Type */
     @Length(5)
     name: string;
+
     @Field(type => Boolean, { nullable: true })
     @Column({ default: true })
     @IsOptional()
     @IsBoolean()
     isVegan: boolean;
+
     @Field(type => String, { defaultValue: "seoul" })
     @Column()
     @IsString()
     address: string;
+
     @Field(type => String)
     @Column()
     @IsString()
     ownerName: string;
+    
     @Field(type => String)
     @Column()
     @IsString()

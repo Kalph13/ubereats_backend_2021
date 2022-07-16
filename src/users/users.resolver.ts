@@ -8,6 +8,7 @@ export class UserResolver {
     constructor(
         private readonly userService: UserService
     ) {}
+
     @Query(returns => [User])
     async users(): Promise<User[]> {
         return this.userService.getAll();
@@ -21,6 +22,7 @@ export class UserResolver {
             }
         }
     */
+   
     @Mutation(returns => CreateAccountOutput)
     async createAccount(
         @Args('input') createAccountInput: CreateAccountInput
