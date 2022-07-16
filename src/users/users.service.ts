@@ -9,7 +9,7 @@ import { JwtService } from "src/jwt/jwt.service";
 
 /* Replaced by JwtService */
 /* ConfigService: https://docs.nestjs.com/techniques/configuration#using-the-configservice */
-/* import { ConfigService } from "@nestjs/config"; */
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class UserService {

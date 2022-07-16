@@ -4,6 +4,11 @@ import { UserService } from "./users.service";
 import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 
+/* UseGuards: https://docs.nestjs.com/security/authentication#login-route */
+import { UseGuards } from "@nestjs/common";
+import { AuthGuard } from "src/auth/auth.guard";
+import { AuthUser } from "src/auth/auth-user.decorator";
+
 @Resolver(of => User)
 export class UserResolver {
     constructor(
@@ -25,13 +30,18 @@ export class UserResolver {
     */
 
     @Query(returns => User)
-    async findMe(@Context() context) {
+    /* Replaced by UseGuards */
+    /* async findMe(@Context() context) {
         console.log("------ findMe ------ context:", context.user);
         if (!context.user) {
             return;
         } else {
             return context.user;
         }
+    } */
+    @UseGuards(AuthGuard)
+    async findMe(@AuthUser() authUser: User) {
+        return authUser;
     }
     /* 
         HTTP Header

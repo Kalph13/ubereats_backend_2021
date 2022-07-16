@@ -60,7 +60,7 @@ import * as Joi from 'joi';
     }),
     RestarantModule,
     UserModule,
-    CommonModule    
+    CommonModule
   ],
   controllers: [],
   providers: []
