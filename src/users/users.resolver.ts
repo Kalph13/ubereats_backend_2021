@@ -1,4 +1,4 @@
-import { Args, Resolver, Query, Mutation} from "@nestjs/graphql";
+import { Args, Resolver, Query, Mutation, Context } from "@nestjs/graphql";
 import { User } from "./entities/users.entity";
 import { UserService } from "./users.service";
 import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.dto";
@@ -24,8 +24,29 @@ export class UserResolver {
         }
     */
 
-    /* @Query(returns => User)
-    async findMe(): {} */
+    @Query(returns => User)
+    async findMe(@Context() context) {
+        console.log("------ findMe ------ context:", context.user);
+        if (!context.user) {
+            return;
+        } else {
+            return context.user;
+        }
+    }
+    /* 
+        HTTP Header
+        {
+            "x-jwt": Insert loginToken
+        }
+
+        query FindMe {
+            findMe {
+                email
+                password
+                role
+            }
+        }
+    */
 
     @Mutation(returns => CreateAccountOutput)
     async createAccount(

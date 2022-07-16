@@ -22,7 +22,7 @@ const config_1 = require("@nestjs/config");
 const Joi = require("joi");
 let AppModule = class AppModule {
     configure(consumer) {
-        consumer.apply(jwt_middleware_1.JwtMiddleware).forRoutes({ path: '/graphql', method: common_1.RequestMethod.ALL });
+        consumer.apply(jwt_middleware_1.JwtMiddleware).forRoutes({ path: '/graphql', method: common_1.RequestMethod.POST });
     }
 };
 AppModule = __decorate([
@@ -55,7 +55,8 @@ AppModule = __decorate([
             }),
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
-                autoSchemaFile: true
+                autoSchemaFile: true,
+                context: ({ req }) => ({ user: req['user'] })
             }),
             jwt_module_1.JwtModule.forRoot({
                 privateKey: process.env.PRIVATE_KEY
