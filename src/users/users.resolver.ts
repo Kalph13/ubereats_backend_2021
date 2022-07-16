@@ -24,6 +24,9 @@ export class UserResolver {
         }
     */
 
+    /* @Query(returns => User)
+    async findMe(): {} */
+
     @Mutation(returns => CreateAccountOutput)
     async createAccount(
         @Args('input') createAccountInput: CreateAccountInput

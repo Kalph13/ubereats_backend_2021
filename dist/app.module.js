@@ -14,11 +14,16 @@ const restaurants_entity_1 = require("./restaurants/entities/restaurants.entity"
 const users_module_1 = require("./users/users.module");
 const users_entity_1 = require("./users/entities/users.entity");
 const common_module_1 = require("./common/common.module");
+const jwt_module_1 = require("./jwt/jwt.module");
+const jwt_middleware_1 = require("./jwt/jwt.middleware");
 const graphql_1 = require("@nestjs/graphql");
 const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
 const Joi = require("joi");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(jwt_middleware_1.JwtMiddleware).forRoutes({ path: '/graphql', method: common_1.RequestMethod.ALL });
+    }
 };
 AppModule = __decorate([
     (0, common_1.Module)({
@@ -33,7 +38,8 @@ AppModule = __decorate([
                     DB_PORT: Joi.string().required(),
                     DB_USERNAME: Joi.string().required(),
                     DB_PASSWORD: Joi.string().required(),
-                    DB_DATABASE: Joi.string().required()
+                    DB_DATABASE: Joi.string().required(),
+                    PRIVATE_KEY: Joi.string().required()
                 })
             }),
             typeorm_1.TypeOrmModule.forRoot({
@@ -50,6 +56,9 @@ AppModule = __decorate([
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
                 autoSchemaFile: true
+            }),
+            jwt_module_1.JwtModule.forRoot({
+                privateKey: process.env.PRIVATE_KEY
             }),
             restaurants_module_1.RestarantModule,
             users_module_1.UserModule,
