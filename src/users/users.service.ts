@@ -26,48 +26,48 @@ export class UserService {
     }
 
     async createAccount({ email, password, role }: CreateAccountInput): Promise<{
-        mutationSucceed: boolean; 
-        mutationError?: string;
+        GraphQLSucceed: boolean; 
+        GraphQLError?: string;
     }> {
         try {
             const existingUser = await this.users.findOne({ where: { email } });
             if (existingUser) {
                 return {
-                    mutationSucceed: false,
-                    mutationError: "The username already exists"
+                    GraphQLSucceed: false,
+                    GraphQLError: "The username already exists"
                 }
             }
             await this.users.save(this.users.create({ email, password, role }))
             return {
-                mutationSucceed: true
+                GraphQLSucceed: true
             }
         } catch (e) {
             return {
-                mutationSucceed: false,
-                mutationError: "Couldn't create the account"
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't create the account"
             }
         }
     }
 
     async login({ email, password }: LoginInput): Promise<{
-        mutationSucceed: boolean;
-        mutationError?: string;
+        GraphQLSucceed: boolean;
+        GraphQLError?: string;
         loginToken?: string;
     }> {
         try {
             const loggedInUser = await this.users.findOne({ where: { email } });
             if (!loggedInUser) {
                 return {
-                    mutationSucceed: false,
-                    mutationError: 'The user is not found'
+                    GraphQLSucceed: false,
+                    GraphQLError: 'The user is not found'
                 }
             }
 
             const checkPassword = await loggedInUser.checkPassword(password);
             if (!checkPassword) {
                 return {
-                    mutationSucceed: false,
-                    mutationError: 'the password is wrong'
+                    GraphQLSucceed: false,
+                    GraphQLError: 'the password is wrong'
                 }
             }
 
@@ -75,13 +75,13 @@ export class UserService {
             /* const loginToken = jwt.sign( { id: loggedInUser.id }, this.configService.get('PRIVATE_KEY')); */
             const loginToken = this.jwtService.sign(loggedInUser.id);
             return {
-                mutationSucceed: true,
+                GraphQLSucceed: true,
                 loginToken
             }
-        } catch (mutationError) {
+        } catch (GraphQLError) {
             return {
-                mutationSucceed: false,
-                mutationError
+                GraphQLSucceed: false,
+                GraphQLError
             }
         }
     }

@@ -1,10 +1,10 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
-export class MutationOutput {
+export class GraphQLOutput {
     @Field(type => Boolean)
-    mutationSucceed: boolean;
+    GraphQLSucceed: boolean;
 
     @Field(type => String, { nullable: true })
-    mutationError?: string;
+    GraphQLError?: string;
 }
