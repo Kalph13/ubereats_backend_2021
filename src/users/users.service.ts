@@ -4,10 +4,12 @@ import { Entity, Repository } from "typeorm";
 import * as jwt from "jsonwebtoken";
 import { JwtService } from "src/jwt/jwt.service";
 import { User } from "./entities/users.entity";
-import { CreateAccountInput } from "./dtos/create-account.dto";
-import { LoginInput } from "./dtos/login.dto";
-import { EditProfileInput } from "./dtos/edit-profile.dto";
+import { UserProfileOutput } from "./dtos/user-profile.dto";
+import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.dto";
+import { LoginInput, LoginOutput } from "./dtos/login.dto";
+import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { Verification } from "./entities/verification.entity";
+import { VerifyEmailOutput } from "./dtos/verify-email.dto";
 
 /* Replaced by JwtService */
 /* ConfigService: https://docs.nestjs.com/techniques/configuration#using-the-configservice */
@@ -28,14 +30,28 @@ export class UserService {
     async getAll(): Promise<User[]> {
         return this.users.find();
     }
+    
+    async findById(id: number): Promise<UserProfileOutput> {
+        try {
+            const findUser = await this.users.findOne({ where: { id } });
+            if (findUser) {
+                return {
+                    GraphQLSucceed: true,
+                    user: findUser
+                }
+            }
+        } catch (GraphQLError) {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't find the user"
+            }
+        }
+    }
 
-    async createAccount({ email, password, role }: CreateAccountInput): Promise<{
-        GraphQLSucceed: boolean; 
-        GraphQLError?: string;
-    }> {
+    async createAccount({ email, password, role }: CreateAccountInput): Promise<CreateAccountOutput> {
         try {
             const existingUser = await this.users.findOne({ where: { email } });
-            
+
             if (existingUser) {
                 return {
                     GraphQLSucceed: false,
@@ -43,9 +59,8 @@ export class UserService {
                 }
             }
 
-            const user = await this.users.save(this.users.create({ email, password, role }));
-
-            await this.verifications.save(this.verifications.create({ user }));
+            const newUser = await this.users.save(this.users.create({ email, password, role }));
+            await this.verifications.save(this.verifications.create({ user: newUser }));
             
             return {
                 GraphQLSucceed: true
@@ -58,34 +73,33 @@ export class UserService {
         }
     }
 
-    async login({ email, password }: LoginInput): Promise<{
-        GraphQLSucceed: boolean;
-        GraphQLError?: string;
-        loginToken?: string;
-    }> {
+    async login({ email, password }: LoginInput): Promise<LoginOutput> {
         try {
             const loggedInUser = await this.users.findOne({
                 where: { email },
                 select: ['password']
             });
+
             if (!loggedInUser) {
                 return {
                     GraphQLSucceed: false,
-                    GraphQLError: 'The user is not found'
+                    GraphQLError: "Couldn't find the user"
                 }
             }
 
             const checkPassword = await loggedInUser.checkPassword(password);
+
             if (!checkPassword) {
                 return {
                     GraphQLSucceed: false,
-                    GraphQLError: 'the password is wrong'
+                    GraphQLError: "Wrong password"
                 }
             }
 
             /* Replaced by JwtService */
             /* const loginToken = jwt.sign( { id: loggedInUser.id }, this.configService.get('PRIVATE_KEY')); */
             const loginToken = this.jwtService.sign(loggedInUser.id);
+
             return {
                 GraphQLSucceed: true,
                 loginToken
@@ -98,28 +112,35 @@ export class UserService {
         }
     }
 
-    async findById(id: number): Promise<User> {
-        return this.users.findOne({ where: { id } });
-    }
-
-    async editProfile(userId: number, { email, password }: EditProfileInput): Promise<User> {
+    async editProfile(userId: number, { email, password }: EditProfileInput): Promise<EditProfileOutput> {
         /* return this.users.update(userId, { email, password }); */
-        const user = await this.users.findOne({ where: { id: userId } });
-        
-        if (email) {
-            user.email = email;
-            user.verified = false;
-            await this.verifications.save(this.verifications.create({ user }));
+        try {
+            const editUser = await this.users.findOne({ where: { id: userId } });
+            
+            if (email) {
+                editUser.email = email;
+                editUser.verified = false;
+                await this.verifications.save(this.verifications.create({ user: editUser }));
+            }
+            
+            if (password) {
+                editUser.password = password;
+            }
+            
+            await this.users.save(editUser);
+
+            return {
+                GraphQLSucceed: true
+            }
+        } catch (GraphQLError) {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't update the profile"
+            }
         }
-        
-        if (password) {
-            user.password = password;
-        }
-        
-        return this.users.save(user);
     }
 
-    async verifyEmail(code: string): Promise<boolean> {
+    async verifyEmail(code: string): Promise<VerifyEmailOutput> {
         try {
             const verification = await this.verifications.findOne({
                 where: { code },
@@ -128,15 +149,23 @@ export class UserService {
      
             if (verification) {
                 verification.user.verified = true;
-                console.log(verification.user);
                 this.users.save(verification.user);
-                return true;
+                console.log("------ Verification ------ verification.user:", verification.user);
+
+                return {
+                    GraphQLSucceed: true
+                };
             }
 
-            throw new Error();
-        } catch (e) {
-            console.log(e);
-            return false;
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Verification error"
+            }
+        } catch (GraphQLError) {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError
+            }
         }
     }
 }

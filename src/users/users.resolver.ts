@@ -22,123 +22,40 @@ export class UserResolver {
     async users(): Promise<User[]> {
         return this.userService.getAll();
     }
-    /* 
-        query Users {
-            users {
-                email
-                password
-                role
-            }
-        }
-    */
 
     @Query(returns => User)
     /* Replaced by UseGuards */
     /* async findMe(@Context() context) {
-        console.log("------ findMe ------ context:", context.user);
-        if (!context.user) {
-            return;
-        } else {
-            return context.user;
-        }
+        if (!context.user) return;
+        else return context.user;
     } */
     @UseGuards(AuthGuard)
-    async findMe(@AuthUser() authUser: User) {
+    async findMe(
+        @AuthUser() authUser: User
+    ) {
         return authUser;
     }
-    /* 
-        HTTP Header
-        {
-            "x-jwt": Insert loginToken
-        }
-
-        query FindMe {
-            findMe {
-                email
-                password
-                role
-            }
-        }
-    */
 
     @Query(returns => UserProfileOutput)
     @UseGuards(AuthGuard)
     async userProfile(
         @Args() userProfileInput: UserProfileInput
     ): Promise<UserProfileOutput> {
-        try {
-            const user = await this.userService.findById(userProfileInput.userId);
-            
-            if (!user) {
-                throw Error();
-            }
-
-            return{
-                GraphQLSucceed: true,
-                user
-            }
-        } catch (GraphQLError) {
-            return {
-                GraphQLSucceed: false,
-                GraphQLError
-            }
-        }
+        return this.userService.findById(userProfileInput.userId);
     }
-    /* 
-        VARIABLES
-        {
-            "userId": 1
-        }
-
-        query UserProfile ($userId: Float!) {
-            userProfile (userId: $userId) {
-                GraphQLSucceed
-                GraphQLError
-                user {
-                    email
-                    password
-                    role
-                }
-            }
-        }
-    */
 
     @Mutation(returns => CreateAccountOutput)
     async createAccount(
         @Args('input') createAccountInput: CreateAccountInput
     ): Promise<CreateAccountOutput> {
-        try {
-            return this.userService.createAccount(createAccountInput);
-        } catch (GraphQLError) {
-            return {
-                GraphQLSucceed: false,
-                GraphQLError
-            }
-        }
+        return this.userService.createAccount(createAccountInput);
     }
-    /* 
-        mutation CreateAccount {
-            createAccount(input: {
-                email: "soonsoon.kim@gmail.com",
-                password: "test1234",
-                role: Owner
-            }) {
-                GraphQLSucceed
-                GraphQLError
-            }
-        }
-    */
 
     @Mutation(returns => LoginOutput)
-    async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
-        try {
-            return this.userService.login(loginInput);
-        } catch (GraphQLError) {
-            return {
-                GraphQLSucceed: false,
-                GraphQLError
-            }
-        }
+    async login(
+        @Args('input') loginInput: LoginInput
+    ): Promise<LoginOutput> {
+        return this.userService.login(loginInput);
     }
 
     @UseGuards(AuthGuard)
@@ -147,33 +64,91 @@ export class UserResolver {
         @AuthUser() authUser: User,
         @Args('input') editProfileInput: EditProfileInput
     ): Promise<EditProfileOutput> {
-        try {
-            await this.userService.editProfile(authUser.id, editProfileInput);
-            return {
-                GraphQLSucceed: true
-            }
-        } catch (GraphQLError) {
-            return {
-                GraphQLSucceed: false,
-                GraphQLError
-            }
-        }
+        return this.userService.editProfile(authUser.id, editProfileInput);
     }
 
     @Mutation(returns => VerifyEmailOutput)
     async verifyEmail(
         @Args('input') { code }: VerifyEmailInput
     ): Promise<VerifyEmailOutput> {
-        try {
-            await this.userService.verifyEmail(code);
-            return {
-                GraphQLSucceed: true
-            }
-        } catch (GraphQLError) {
-            return {
-                GraphQLSucceed: false,
-                GraphQLError
-            }
+        return this.userService.verifyEmail(code);
+    }
+}
+
+/* 
+------ Query users ------
+query Users {
+    users {
+        email
+        password
+        role
+    }
+}
+
+------ Query findMe ------
+HTTP Header
+{
+    "x-jwt": "***" (Login Token, String)
+}
+
+query FindMe {
+    findMe {
+        email
+        password
+        role
+    }
+}
+
+------ Query UserProfile ------
+VARIABLES
+{
+    "userId": *** (User ID, Number)
+}
+
+query UserProfile ($userId: Float!) {
+    userProfile (userId: $userId) {
+        GraphQLSucceed
+        GraphQLError
+        user {
+            email
+            password
+            role
         }
     }
 }
+
+------ Mutation CreateAccount ------
+mutation CreateAccount {
+    createAccount(input: {
+        email: "***",
+        password: "***",
+        role: Owner | Client | Delivery
+    }) {
+        GraphQLSucceed
+        GraphQLError
+    }
+}
+
+------ Mutation Login ------
+mutation Login {
+    login (input: {
+        email: "***",
+        password: "***",
+    }) {
+        GraphQLSucceed
+        GraphQLError
+        loginToken
+    }
+}
+
+------ Mutation EditProfile ------
+mutation EditProfile {
+    editProfile(input: {
+        email: "***"
+        password: "***"
+    }) {
+        GraphQLSucceed
+        GraphQLError
+    }
+}
+*/

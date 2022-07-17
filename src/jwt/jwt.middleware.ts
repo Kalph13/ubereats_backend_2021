@@ -24,7 +24,7 @@ export class JwtMiddleware implements NestMiddleware {
                     req['user'] = loggedInUser;
                 }
             } catch (e) {
-            console.log(e);
+                console.log(e);
             }
         }
         next();

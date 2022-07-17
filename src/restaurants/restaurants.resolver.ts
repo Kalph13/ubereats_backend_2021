@@ -11,24 +11,12 @@ export class RestaurantResolver {
     constructor(
         private readonly restaurantService: RestaurantService
     ) {}
-    /* @Query: https://docs.nestjs.com/graphql/resolvers#query-type-names */
 
+    /* @Query: https://docs.nestjs.com/graphql/resolvers#query-type-names */
     @Query(returns => [Restaurant])
     restaurants(): Promise<Restaurant[]> {
         return this.restaurantService.getAll();
     }
-    /* 
-        query Restaurants {
-            restaurants {
-                id
-                name
-                isVegan
-                address
-                ownerName
-                categoryName
-            }
-        }
-    */
 
     /* @Mutation: https://docs.nestjs.com/graphql/mutations */
     /* @Args: https://docs.nestjs.com/graphql/resolvers#args-decorator-options */    
@@ -45,15 +33,6 @@ export class RestaurantResolver {
             return false;
         }
     }
-    /*
-        mutation CreateRestaurant {
-            createRestaurant(input: {
-                name: "highball",
-                ownerName: "soonsoon.kim",
-                categoryName: "bar"
-            })
-        }
-    */    
    
     @Mutation(returns => Boolean)
     async updateRestaurant(
@@ -68,15 +47,35 @@ export class RestaurantResolver {
             return false;
         }
     }
-    /*
-        mutation UpdateRestaurant {
-            updateRestaurant(input: {
-                id: 3,
-                data:{
-                    isVegan: false,
-                    categoryName: "bar"
-                }
-            })
-        }
-    */
 };
+
+/* 
+    query Restaurants {
+        restaurants {
+            id
+            name
+            isVegan
+            address
+            ownerName
+            categoryName
+        }
+    }
+
+    mutation CreateRestaurant {
+        createRestaurant(input: {
+            name: "***",
+            ownerName: "***",
+            categoryName: "***"
+        })
+    }
+
+    mutation UpdateRestaurant {
+        updateRestaurant(input: {
+            id: *** (Number),
+            data:{
+                isVegan: true | false,
+                categoryName: "***"
+            }
+        })
+    }
+*/
