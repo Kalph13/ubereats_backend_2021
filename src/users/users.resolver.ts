@@ -5,6 +5,7 @@ import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.d
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { UserProfileInput, UserProfileOutput } from "./dtos/user-profile.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
+import { VerifyEmailInput, VerifyEmailOutput } from "./dtos/verify-email.dto";
 
 /* UseGuards: https://docs.nestjs.com/security/authentication#login-route */
 import { UseGuards } from "@nestjs/common";
@@ -148,6 +149,23 @@ export class UserResolver {
     ): Promise<EditProfileOutput> {
         try {
             await this.userService.editProfile(authUser.id, editProfileInput);
+            return {
+                GraphQLSucceed: true
+            }
+        } catch (GraphQLError) {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError
+            }
+        }
+    }
+
+    @Mutation(returns => VerifyEmailOutput)
+    async verifyEmail(
+        @Args('input') { code }: VerifyEmailInput
+    ): Promise<VerifyEmailOutput> {
+        try {
+            await this.userService.verifyEmail(code);
             return {
                 GraphQLSucceed: true
             }

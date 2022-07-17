@@ -7,6 +7,7 @@ import { User } from './users/entities/users.entity';
 import { CommonModule } from './common/common.module';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
+import { Verification } from './users/entities/verification.entity';
 
 /* GraphQL in NextJS: https://docs.nestjs.com/graphql/quick-start */
 /* GraphQL Playground: http://localhost:3000/graphql */
@@ -48,7 +49,7 @@ import * as Joi from 'joi';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod', /* Must be False in Production (Causes Production Data Loss) */
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [Restaurant, User]
+      entities: [Restaurant, User, Verification]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

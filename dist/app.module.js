@@ -16,6 +16,7 @@ const users_entity_1 = require("./users/entities/users.entity");
 const common_module_1 = require("./common/common.module");
 const jwt_module_1 = require("./jwt/jwt.module");
 const jwt_middleware_1 = require("./jwt/jwt.middleware");
+const verification_entity_1 = require("./users/entities/verification.entity");
 const graphql_1 = require("@nestjs/graphql");
 const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
@@ -51,7 +52,7 @@ AppModule = __decorate([
                 database: process.env.DB_DATABASE,
                 synchronize: process.env.NODE_ENV !== 'prod',
                 logging: process.env.NODE_ENV !== 'prod',
-                entities: [restaurants_entity_1.Restaurant, users_entity_1.User]
+                entities: [restaurants_entity_1.Restaurant, users_entity_1.User, verification_entity_1.Verification]
             }),
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
