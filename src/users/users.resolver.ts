@@ -4,6 +4,7 @@ import { UserService } from "./users.service";
 import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { UserProfileInput, UserProfileOutput } from "./dtos/user-profile.dto";
+import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 
 /* UseGuards: https://docs.nestjs.com/security/authentication#login-route */
 import { UseGuards } from "@nestjs/common";
@@ -131,6 +132,25 @@ export class UserResolver {
     async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
         try {
             return this.userService.login(loginInput);
+        } catch (GraphQLError) {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Mutation(returns => EditProfileOutput)
+    async editProfile(
+        @AuthUser() authUser: User,
+        @Args('input') editProfileInput: EditProfileInput
+    ): Promise<EditProfileOutput> {
+        try {
+            await this.userService.editProfile(authUser.id, editProfileInput);
+            return {
+                GraphQLSucceed: true
+            }
         } catch (GraphQLError) {
             return {
                 GraphQLSucceed: false,

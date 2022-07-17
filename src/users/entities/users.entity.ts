@@ -1,6 +1,6 @@
 import { ObjectType, InputType, registerEnumType, Field } from "@nestjs/graphql";
 import { InternalServerErrorException } from "@nestjs/common";
-import { Entity, Column, BeforeInsert } from "typeorm";
+import { Entity, Column, BeforeInsert, BeforeUpdate } from "typeorm";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { IsEmail, IsEnum } from "class-validator";
 import * as bcrypt from "bcrypt";
@@ -35,6 +35,7 @@ export class User extends CoreEntity {
 
     /* @BeforeInsert: https://typeorm.io/listeners-and-subscribers#beforeinsert */
     @BeforeInsert()
+    @BeforeUpdate()
     async hashPassword(): Promise<void> {
         try { 
             this.password = await bcrypt.hash(this.password, 10);
