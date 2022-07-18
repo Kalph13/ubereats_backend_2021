@@ -77,7 +77,7 @@ export class UserService {
         try {
             const loggedInUser = await this.users.findOne({
                 where: { email },
-                select: ['password']
+                select: ['id', 'password'] /* Extract Only 'id', 'password' Field */
             });
 
             if (!loggedInUser) {
