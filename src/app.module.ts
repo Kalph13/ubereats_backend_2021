@@ -61,7 +61,6 @@ import * as Joi from 'joi';
     }),
     RestarantModule,
     UserModule,
-    CommonModule
   ],
   controllers: [],
   providers: []

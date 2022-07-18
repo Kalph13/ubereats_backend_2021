@@ -151,4 +151,14 @@ mutation EditProfile {
         GraphQLError
     }
 }
+
+------ Mutation VerifyEmail ------
+mutation VerifyEmail {
+    verifyEmail (input: {
+        code: "***" (The Code Generated in CreateAccount)
+    }) {
+        GraphQLSucceed
+        GraphQLError
+    }
+}
 */

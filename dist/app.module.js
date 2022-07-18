@@ -13,7 +13,6 @@ const restaurants_module_1 = require("./restaurants/restaurants.module");
 const restaurants_entity_1 = require("./restaurants/entities/restaurants.entity");
 const users_module_1 = require("./users/users.module");
 const users_entity_1 = require("./users/entities/users.entity");
-const common_module_1 = require("./common/common.module");
 const jwt_module_1 = require("./jwt/jwt.module");
 const jwt_middleware_1 = require("./jwt/jwt.middleware");
 const verification_entity_1 = require("./users/entities/verification.entity");
@@ -64,7 +63,6 @@ AppModule = __decorate([
             }),
             restaurants_module_1.RestarantModule,
             users_module_1.UserModule,
-            common_module_1.CommonModule
         ],
         controllers: [],
         providers: []

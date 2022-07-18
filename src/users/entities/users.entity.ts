@@ -21,7 +21,8 @@ export class User extends CoreEntity {
     @IsEmail()
     email: string;
     
-    @Column({ select: false })
+    /* Hidden Column: https://typeorm.io/select-query-builder#hidden-columns */
+    @Column({ select: false }) 
     @Field(type => String)
     password: string;
     
@@ -41,7 +42,7 @@ export class User extends CoreEntity {
     @BeforeInsert()
     @BeforeUpdate()
     async hashPassword(): Promise<void> {
-        if(this.password) {
+        if (this.password) {
             try { 
                 this.password = await bcrypt.hash(this.password, 10);
             } catch (e) {
