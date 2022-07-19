@@ -35,12 +35,10 @@ export class UserService {
     
     async findById(id: number): Promise<UserProfileOutput> {
         try {
-            const findUser = await this.users.findOne({ where: { id } });
-            if (findUser) {
-                return {
-                    GraphQLSucceed: true,
-                    user: findUser
-                }
+            const findUser = await this.users.findOneOrFail({ where: { id } });
+            return {
+                GraphQLSucceed: true,
+                user: findUser
             }
         } catch (GraphQLError) {
             return {
@@ -110,7 +108,7 @@ export class UserService {
         } catch (GraphQLError) {
             return {
                 GraphQLSucceed: false,
-                GraphQLError
+                GraphQLError: "Login failed"
             }
         }
     }
