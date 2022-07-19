@@ -166,7 +166,7 @@ export class UserService {
         } catch (GraphQLError) {
             return {
                 GraphQLSucceed: false,
-                GraphQLError
+                GraphQLError: "Couldn't verify the email"
             }
         }
     }

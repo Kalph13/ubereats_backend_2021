@@ -10,6 +10,7 @@ import { MailService } from "src/mail/mail.service";
 const mockRepository = () => ({
     save: jest.fn(),
     create: jest.fn(),
+    delete: jest.fn(),
     findOne: jest.fn(),
     findOneOrFail: jest.fn()
 });
@@ -248,5 +249,41 @@ describe('UserService', () => {
         });
     });
 
-    it.todo('verifyEmail');
+    describe('verifyEmail', () => {
+        it('should verify email', async () => {
+            const mockVerification = {
+                id: 1,
+                user: {
+                    verified: false
+                }
+            };
+            verificationRepository.findOne.mockResolvedValue(mockVerification);
+            const result = await userService.verifyEmail('');
+            expect(verificationRepository.findOne).toHaveBeenCalledTimes(1);
+            expect(verificationRepository.findOne).toHaveBeenCalledWith(expect.any(Object));
+            expect(userRepository.save).toHaveBeenCalledTimes(1);
+            expect(userRepository.save).toHaveBeenCalledWith({ verified: true });
+            expect(verificationRepository.delete).toHaveBeenCalledTimes(1);
+            expect(verificationRepository.delete).toHaveBeenCalledWith(mockVerification.id);
+            expect(result).toEqual({ 
+                GraphQLSucceed: true
+            })
+        });
+        it('should fail when the verification is not found', async () => {
+            verificationRepository.findOne.mockResolvedValue(undefined);
+            const result = await userService.verifyEmail('');
+            expect(result).toEqual({
+                GraphQLSucceed: false,
+                GraphQLError: 'Verification error'
+            })
+        });
+        it('should fail on exception', async () => {
+            verificationRepository.findOne.mockRejectedValue(new Error());
+            const result = await userService.verifyEmail('');
+            expect(result).toEqual({
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't verify the email"
+            });
+        });
+    });
 });
