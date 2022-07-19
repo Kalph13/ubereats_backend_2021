@@ -58,8 +58,8 @@ export class UserResolver {
         return this.userService.login(loginInput);
     }
 
-    @UseGuards(AuthGuard)
     @Mutation(returns => EditProfileOutput)
+    @UseGuards(AuthGuard)
     async editProfile(
         @AuthUser() authUser: User,
         @Args('input') editProfileInput: EditProfileInput

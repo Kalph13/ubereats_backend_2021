@@ -1,6 +1,6 @@
 import { Injectable, Inject } from "@nestjs/common";
-import { JwtModuleOptions } from "./jwt.interface";
-import { CONFIG_OPTIONS } from "./jwt.constants";
+import { JwtModuleOptions } from "./jwt.interfaces";
+import { CONFIG_OPTIONS } from "../common/common.constants";
 import * as jwt from "jsonwebtoken"
 
 @Injectable()
@@ -11,6 +11,7 @@ export class JwtService {
     ) {}
 
     sign(userId: number): string {
+        console.log("------ JwtService ------ userId:", userId);
         return jwt.sign({ id: userId }, this.options.privateKey);
     }
 

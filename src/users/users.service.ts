@@ -3,12 +3,13 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Entity, Repository } from "typeorm";
 import * as jwt from "jsonwebtoken";
 import { JwtService } from "src/jwt/jwt.service";
+import { MailService } from "src/mail/mail.service";
 import { User } from "./entities/users.entity";
+import { Verification } from "./entities/verification.entity";
 import { UserProfileOutput } from "./dtos/user-profile.dto";
 import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
-import { Verification } from "./entities/verification.entity";
 import { VerifyEmailOutput } from "./dtos/verify-email.dto";
 
 /* Replaced by JwtService */
@@ -24,7 +25,8 @@ export class UserService {
         private readonly verifications: Repository<Verification>,
         /* Replaced by JwtService */
         /* private readonly configService: ConfigService, */
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly mailService: MailService
     ) {}
 
     async getAll(): Promise<User[]> {
@@ -60,7 +62,8 @@ export class UserService {
             }
 
             const newUser = await this.users.save(this.users.create({ email, password, role }));
-            await this.verifications.save(this.verifications.create({ user: newUser }));
+            const verification = await this.verifications.save(this.verifications.create({ user: newUser }));
+            this.mailService.sendVerificationEmail(newUser.email, verification.code);
             
             return {
                 GraphQLSucceed: true
@@ -120,7 +123,8 @@ export class UserService {
             if (email) {
                 editUser.email = email;
                 editUser.verified = false;
-                await this.verifications.save(this.verifications.create({ user: editUser }));
+                const verification = await this.verifications.save(this.verifications.create({ user: editUser }));
+                this.mailService.sendVerificationEmail(editUser.email, verification.code);
             }
             
             if (password) {
@@ -151,7 +155,6 @@ export class UserService {
                 verification.user.verified = true;
                 await this.users.save(verification.user);
                 await this.verifications.delete(verification.id);
-                console.log("------ Verification ------ verification.user:", verification.user);
 
                 return {
                     GraphQLSucceed: true
