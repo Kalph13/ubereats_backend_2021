@@ -14,7 +14,7 @@ const mockRepository = () => ({
 });
 
 const mockJwtService = {
-    sign: jest.fn(),
+    sign: jest.fn(() => 'signed-token-baby'),
     verify: jest.fn()
 };
 
@@ -27,10 +27,11 @@ type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 describe('UserService', () => {
     let service: UserService;
     let mailService: MailService;
+    let jwtService: JwtService;
     let userRepository: MockRepository<User>;
     let verificationRepository: MockRepository<Verification>;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         const module = await Test.createTestingModule({
             providers: [
                 UserService,
@@ -55,6 +56,7 @@ describe('UserService', () => {
         }).compile();
         service = module.get<UserService>(UserService);
         mailService = module.get<MailService>(MailService);
+        jwtService = module.get<JwtService>(JwtService);
         userRepository = module.get(getRepositoryToken(User));
         verificationRepository = module.get(getRepositoryToken(Verification));
     });
@@ -100,11 +102,66 @@ describe('UserService', () => {
                 expect.any(String),
                 expect.any(String)
             );
-            expect(result).toEqual({ GraphQLSucceed: true });
+            expect(result).toEqual({
+                GraphQLSucceed: true
+            });
+        });
+        it('should fail on exception', async () => {
+            userRepository.findOne.mockRejectedValue(new Error());
+            const result = await service.createAccount(createAccountArgs);
+            expect(result).toEqual({
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't create the account"
+            })
         });
     });
 
-    it.todo('login');
+    describe('login', () => {
+        const loginArgs = {
+            email: 'test@email.com',
+            password: 'test.password',
+        };
+        it("should fail if the user doesn't exist", async () => {
+            userRepository.findOne.mockResolvedValue(null);
+            const result = await service.login(loginArgs);
+            expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+            expect(userRepository.findOne).toHaveBeenCalledWith(
+                expect.any(Object)
+            );
+            expect(result).toEqual({
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't find the user"
+            });
+        });
+        it('should fall if the password is wrong', async () => {
+            const mockUser = {
+                checkPassword: jest.fn(() => Promise.resolve(false))
+            };
+            userRepository.findOne.mockResolvedValue(mockUser);
+            const result = await service.login(loginArgs);
+            expect(result).toEqual({
+                GraphQLSucceed: false,
+                GraphQLError: 'Wrong password'
+            });
+        });
+        it('should return token if the password is correct', async () => {
+            const mockUser = {
+                id: 1,
+                checkPassword: jest.fn(() => Promise.resolve(true))
+            };
+            userRepository.findOne.mockResolvedValue(mockUser);
+            const result = await service.login(loginArgs);
+            expect(jwtService.sign).toHaveBeenCalledTimes(1);
+            expect(jwtService.sign).toHaveBeenCalledWith(
+                expect.any(Number)
+            );
+            expect(result).toEqual({
+                GraphQLSucceed: true,
+                loginToken: 'signed-token-baby'
+            });
+        });
+    });
+
     it.todo('findById');
     it.todo('editProfile');
     it.todo('verifyEmail');
