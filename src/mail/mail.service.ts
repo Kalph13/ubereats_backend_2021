@@ -16,7 +16,7 @@ export class MailService {
         private readonly options: MailModuleOptions
     ) {}
     
-    private async sendEmail(subject: string, template: string, emailVars: EmailVar[]) {
+    async sendEmail(subject: string, template: string, emailVars: EmailVar[]): Promise<boolean> {
         const form = new FormData();
         form.append('from', `Admin from Uber Eats <${this.options.fromEmail}>`); 
         form.append('to', `${process.env.MAILGUN_RECIPIENT}`); /* Should Be Registered as a Authorized Recipients */
@@ -25,18 +25,16 @@ export class MailService {
         emailVars.forEach(aVar => form.append(`v:${aVar.key}`, aVar.value));
 
         try {
-            await got(
-                `https://api.mailgun.net/v3/${this.options.domain}/messages`,
-                {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Basic ${Buffer.from(`api:${this.options.apiKey}`).toString('base64')}`
-                    },
-                    body: form
-                }
-            );
+            await got.post(`https://api.mailgun.net/v3/${this.options.domain}/messages`, {
+                headers: {
+                    Authorization: `Basic ${Buffer.from(`api:${this.options.apiKey}`).toString('base64')}`
+                },
+                body: form
+            });
+            return true;
         } catch (e) {
             console.log(e);
+            return false;
         }
     }
 
