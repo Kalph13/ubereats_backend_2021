@@ -1,7 +1,9 @@
 import { Args, Resolver, Query, Mutation} from "@nestjs/graphql";
+import { AuthUser } from "src/auth/auth-user.decorator";
+import { User } from "src/users/entities/users.entity";
 import { Restaurant } from "./entities/restaurants.entity";
 import { RestaurantService } from "./restaurants.service";
-import { CreateRestaurantDto } from "./dtos/create-restaurant.dto";
+import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
 import { UpdateRestaurantDto } from "./dtos/update-restaurant.dto";
 
 /* @Resolver: https://docs.nestjs.com/graphql/resolvers */
@@ -19,26 +21,19 @@ export class RestaurantResolver {
     }
 
     /* @Mutation: https://docs.nestjs.com/graphql/mutations */
-    /* @Args: https://docs.nestjs.com/graphql/resolvers#args-decorator-options */    
-    @Mutation(returns => Boolean)
+    /* @Args: https://docs.nestjs.com/graphql/resolvers#args-decInputtor-options */    
+    @Mutation(returns => CreateRestaurantOutput)
     async createRestaurant(
-        @Args('input') createRestaurantDto: CreateRestaurantDto
-    ): Promise<boolean> {
-        console.log("------ createRestaurant:", createRestaurantDto);
-        try {
-            await this.restaurantService.createRestaurant(createRestaurantDto);
-            return true;
-        } catch (e) {
-            console.log(e);
-            return false;
-        }
+        @AuthUser() authUser: User,
+        @Args('input') createRestaurantInput: CreateRestaurantInput
+    ): Promise<CreateRestaurantOutput> {
+        return this.restaurantService.createRestaurant(authUser, createRestaurantInput);
     }
    
     @Mutation(returns => Boolean)
     async updateRestaurant(
         @Args('input') updateRestaurantDto: UpdateRestaurantDto
     ): Promise<boolean> {
-        console.log("----- updateRestaurant:", updateRestaurantDto);
         try {
             await this.restaurantService.updateRestaurant(updateRestaurantDto);
             return true
@@ -50,32 +45,41 @@ export class RestaurantResolver {
 };
 
 /* 
-    query Restaurants {
-        restaurants {
-            id
+------ Query Restaurants ------
+query Restaurants {
+    restaurants {
+        id
+        createdAt
+        updatedAt
+        name
+        coverImg
+        address
+        category {
             name
-            isVegan
-            address
-            ownerName
-            categoryName
+        }
+        owner {
+            email
         }
     }
+}
 
-    mutation CreateRestaurant {
-        createRestaurant(input: {
-            name: "***",
-            ownerName: "***",
+------ Mutation CreateRestaurant ------
+mutation CreateRestaurant {
+    createRestaurant(input: {
+        name: "***",
+        ownerName: "***",
+        categoryName: "***"
+    })
+}
+
+------ Mutation UpdateRestaurant ------
+mutation UpdateRestaurant {
+    updateRestaurant(input: {
+        id: *** (Number),
+        data:{
+            isVegan: true | false,
             categoryName: "***"
-        })
-    }
-
-    mutation UpdateRestaurant {
-        updateRestaurant(input: {
-            id: *** (Number),
-            data:{
-                isVegan: true | false,
-                categoryName: "***"
-            }
-        })
-    }
+        }
+    })
+}
 */

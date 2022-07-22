@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const apollo_1 = require("@nestjs/apollo");
 const restaurants_module_1 = require("./restaurants/restaurants.module");
 const restaurants_entity_1 = require("./restaurants/entities/restaurants.entity");
+const category_entity_1 = require("./restaurants/entities/category.entity");
 const users_module_1 = require("./users/users.module");
 const users_entity_1 = require("./users/entities/users.entity");
 const jwt_module_1 = require("./jwt/jwt.module");
@@ -55,7 +56,7 @@ AppModule = __decorate([
                 database: process.env.DB_DATABASE,
                 synchronize: process.env.NODE_ENV !== 'prod',
                 logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-                entities: [restaurants_entity_1.Restaurant, users_entity_1.User, verification_entity_1.Verification]
+                entities: [restaurants_entity_1.Restaurant, category_entity_1.Category, users_entity_1.User, verification_entity_1.Verification]
             }),
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
@@ -70,8 +71,8 @@ AppModule = __decorate([
                 domain: process.env.MAILGUN_DOMAIN_NAME,
                 fromEmail: process.env.MAILGUN_FROM_EMAIL
             }),
-            restaurants_module_1.RestarantModule,
             users_module_1.UserModule,
+            restaurants_module_1.RestarantModule
         ],
         controllers: [],
         providers: []

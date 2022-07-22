@@ -1,8 +1,9 @@
 import { ObjectType, InputType, registerEnumType, Field } from "@nestjs/graphql";
-import { InternalServerErrorException } from "@nestjs/common";
-import { Entity, Column, BeforeInsert, BeforeUpdate } from "typeorm";
+import { InternalServerErrorException, Res } from "@nestjs/common";
+import { Entity, Column, BeforeInsert, BeforeUpdate, OneToMany } from "typeorm";
 import { CoreEntity } from "src/common/entities/core.entity";
-import { IsEmail, IsEnum } from "class-validator";
+import { Restaurant } from "src/restaurants/entities/restaurants.entity";
+import { IsEmail, IsEnum, IsBoolean, IsString } from "class-validator";
 import * as bcrypt from "bcrypt";
 
 /* Replaced by Enum */
@@ -12,7 +13,7 @@ import * as bcrypt from "bcrypt";
 enum UserRole { Client, Owner, Delivery }
 registerEnumType(UserRole, { name: 'UserRole' });
 
-@InputType({ isAbstract: true })
+@InputType("UserInputType", { isAbstract: true })
 @ObjectType()
 @Entity()
 export class User extends CoreEntity {
@@ -24,6 +25,7 @@ export class User extends CoreEntity {
     /* Hidden Column: https://typeorm.io/select-query-builder#hidden-columns */
     @Column({ select: false }) 
     @Field(type => String)
+    @IsString()
     password: string;
     
     /* Replaced by Enum */
@@ -36,7 +38,15 @@ export class User extends CoreEntity {
 
     @Column({ default: false })
     @Field(type => Boolean)
+    @IsBoolean()
     verified: boolean;
+
+    @Field(type => [Restaurant])
+    @OneToMany(
+        type => Restaurant,
+        restaurant => restaurant.owner
+    )
+    restaurants: Restaurant[];
 
     /* @BeforeInsert: https://typeorm.io/listeners-and-subscribers#beforeinsert */
     @BeforeInsert()

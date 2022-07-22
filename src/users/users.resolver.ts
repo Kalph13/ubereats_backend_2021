@@ -76,7 +76,7 @@ export class UserResolver {
 }
 
 /* 
------- Query users ------
+------ Query Users ------
 query Users {
     users {
         email
@@ -85,7 +85,7 @@ query Users {
     }
 }
 
------- Query findMe ------
+------ Query FindMe ------
 HTTP Header
 {
     "x-jwt": "***" (Login Token, String)

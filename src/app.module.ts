@@ -2,6 +2,7 @@ import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/c
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { RestarantModule } from './restaurants/restaurants.module';
 import { Restaurant } from './restaurants/entities/restaurants.entity';
+import { Category } from './restaurants/entities/category.entity';
 import { UserModule } from './users/users.module';
 import { User } from './users/entities/users.entity';
 import { JwtModule } from './jwt/jwt.module';
@@ -52,7 +53,7 @@ import * as Joi from 'joi';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod', /* Must be False in Production (Causes Production Data Loss) */
       logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-      entities: [Restaurant, User, Verification]
+      entities: [Restaurant, Category, User, Verification]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -67,8 +68,8 @@ import * as Joi from 'joi';
       domain: process.env.MAILGUN_DOMAIN_NAME, /* sandbox***.mailgun.org */
       fromEmail: process.env.MAILGUN_FROM_EMAIL /* me@samples.mailgun.org */
     }),
-    RestarantModule,
     UserModule,
+    RestarantModule
   ],
   controllers: [],
   providers: []
