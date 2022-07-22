@@ -21,7 +21,9 @@ export class JwtMiddleware implements NestMiddleware {
                 const decoded = this.jwtService.verify(loginToken.toString());
                 if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
                     const loggedInUser = await this.userService.findById(decoded['id']);
-                    req['user'] = loggedInUser;
+                    if (loggedInUser.GraphQLSucceed) {
+                        req['user'] = loggedInUser;
+                    }
                 }
             } catch (e) {
                 console.log(e);
