@@ -1,14 +1,16 @@
-import { Args, Resolver, Query, Mutation} from "@nestjs/graphql";
+import { Args, Resolver, Query, Mutation, ResolveField, Int, Parent} from "@nestjs/graphql";
 import { SetMetadata } from "@nestjs/common";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { Role } from "src/auth/role.decorator";
 import { User, UserRole } from "src/users/entities/users.entity";
 import { Restaurant } from "./entities/restaurants.entity";
 import { RestaurantService } from "./restaurants.service";
+import { Category } from "./entities/category.entity";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
 import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
-import { Category } from "./entities/category.entity";
+import { AllCategoriesOutput } from "./dtos/all-categories.dto";
+import { CategoryInput, CategoryOutput } from "./dtos/category.dto";
 
 /* @Resolver: https://docs.nestjs.com/graphql/resolvers */
 /* - Similar to '*.resolvers.js' */
@@ -22,11 +24,6 @@ export class RestaurantResolver {
     @Query(returns => [Restaurant])
     restaurants(): Promise<Restaurant[]> {
         return this.restaurantService.getAll();
-    }
-
-    @Query(returns => [Category])
-    categories(): Promise<Category[]> {
-        return this.restaurantService.getCategories();
     }
 
     /* @Mutation: https://docs.nestjs.com/graphql/mutations */
@@ -59,6 +56,28 @@ export class RestaurantResolver {
     }
 };
 
+@Resolver(of => Category)
+export class CategoryResolver {
+    constructor (
+        private readonly restaurantService: RestaurantService
+    ) {}
+
+    @Query(returns => AllCategoriesOutput)
+    allCategories(): Promise<AllCategoriesOutput> {
+        return this.restaurantService.allCategories();
+    }
+
+    @ResolveField(returns => Int)
+    countRestaurants(@Parent() category: Category): Promise<number> {
+        return this.restaurantService.countRestaurants(category);
+    }
+
+    @Query(returns => CategoryOutput)
+    category(@Args() categoryInput: CategoryInput): Promise<CategoryOutput> {
+        return this.restaurantService.findCategoryBySlug(categoryInput);
+    }
+}
+
 /* 
 ------ Query Restaurants ------
 query Restaurants {
@@ -78,16 +97,32 @@ query Restaurants {
     }
 }
 
------- Query Categories ------
-query Categories {
-    categories {
-        id
-        createdAt
-        updatedAt
-        name
-        coverImg
-        slug
-        restaurants {
+------ Query AllCategories ------
+query AllCategories {
+    allCategories {
+        GraphQLSucceed
+        GraphQLError
+        categories {
+            id
+            createdAt
+            updatedAt
+            name
+            coverImg
+            slug
+            restaurants {
+                name
+            }
+        }
+    }
+}
+
+------ Query Category ------
+query Category {
+    category (slug: "***") {
+        GraphQLSucceed
+        GraphQLError
+        category {
+            id
             name
         }
     }
@@ -110,6 +145,16 @@ mutation CreateRestaurant {
 mutation EditRestaurant {
     editRestaurant(input: {
         name: "***",
+        restaurantId: ***
+    }) {
+        GraphQLSucceed
+        GraphQLError
+    }
+}
+
+------ Mutation DeleteRestaurant ------
+mutation DeleteRestaurant {
+    deleteRestaurant(input: {
         restaurantId: ***
     }) {
         GraphQLSucceed
