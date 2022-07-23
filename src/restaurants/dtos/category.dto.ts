@@ -1,15 +1,19 @@
-import { ArgsType, Field, ObjectType } from "@nestjs/graphql";
-import { GraphQLOutput } from "src/common/dtos/output.dto";
+import { InputType, Field, ObjectType } from "@nestjs/graphql";
+import { PaginationInput, PaginationOutput } from "src/common/dtos/pagination.dto";
 import { Category } from "../entities/category.entity";
+import { Restaurant } from "../entities/restaurants.entity";
 
-@ArgsType()
-export class CategoryInput {
+@InputType()
+export class CategoryInput extends PaginationInput{
     @Field(type => String)
     slug: string;
 }
 
 @ObjectType()
-export class CategoryOutput extends GraphQLOutput {
+export class CategoryOutput extends PaginationOutput {
     @Field(type => Category, { nullable: true })
     category?: Category
+
+    @Field(type => [Restaurant], { nullable: true })
+    restaurants?: Restaurant[];
 }

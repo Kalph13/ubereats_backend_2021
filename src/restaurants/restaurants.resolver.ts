@@ -6,6 +6,7 @@ import { User, UserRole } from "src/users/entities/users.entity";
 import { Restaurant } from "./entities/restaurants.entity";
 import { RestaurantService } from "./restaurants.service";
 import { Category } from "./entities/category.entity";
+import { AllRestaurantsInput, AllRestaurantsOutput } from "./dtos/all-restaurants.dto";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
 import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
@@ -21,9 +22,11 @@ export class RestaurantResolver {
     ) {}
 
     /* @Query: https://docs.nestjs.com/graphql/resolvers#query-type-names */
-    @Query(returns => [Restaurant])
-    restaurants(): Promise<Restaurant[]> {
-        return this.restaurantService.getAll();
+    @Query(returns => AllRestaurantsOutput)
+    allRestaurants(
+        @Args("input") restaurantInput: AllRestaurantsInput
+    ): Promise<AllRestaurantsOutput> {
+        return this.restaurantService.allRestaurants(restaurantInput);
     }
 
     /* @Mutation: https://docs.nestjs.com/graphql/mutations */
@@ -73,27 +76,24 @@ export class CategoryResolver {
     }
 
     @Query(returns => CategoryOutput)
-    category(@Args() categoryInput: CategoryInput): Promise<CategoryOutput> {
+    category(@Args("input") categoryInput: CategoryInput): Promise<CategoryOutput> {
         return this.restaurantService.findCategoryBySlug(categoryInput);
     }
 }
 
 /* 
 ------ Query Restaurants ------
-query Restaurants {
-    restaurants {
-        id
-        createdAt
-        updatedAt
-        name
-        coverImg
-        address
-        category {
+query AllRestaurants {
+    allRestaurants(input: {
+        page: 1
+    }) {
+        GraphQLSucceed
+        GraphQLError
+        restaurants {
             name
         }
-        owner {
-            email
-        }
+        totalPages
+        totalResults
     }
 }
 
@@ -118,13 +118,17 @@ query AllCategories {
 
 ------ Query Category ------
 query Category {
-    category (slug: "***") {
+    category (input: {
+        slug: "***",
+        page: 1
+    }) {
         GraphQLSucceed
         GraphQLError
         category {
             id
             name
         }
+        totalPages
     }
 }
 

@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { User } from "src/users/entities/users.entity";
 import { Restaurant } from "./entities/restaurants.entity";
 import { Category } from "./entities/category.entity";
+import { AllRestaurantsInput, AllRestaurantsOutput } from "./dtos/all-restaurants.dto";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
 import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
@@ -22,13 +23,25 @@ export class RestaurantService {
         private readonly categories: Repository<Category>
     ) {}
     
-    getAll() {
-        return this.restaurants.find({
-            relations: {
-                category: true,
-                owner: true
+    async allRestaurants({ page }: AllRestaurantsInput): Promise<AllRestaurantsOutput> {
+        try {
+            const [restaurants, totalResults] = await this.restaurants.findAndCount({
+                take: 25,
+                skip: (page - 1) * 25
+            });
+
+            return {
+                GraphQLSucceed: true,
+                restaurants,
+                totalPages: Math.ceil(totalResults / 25),
+                totalResults
             }
-        });
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't load restaurants"
+            }
+        }
     }
 
     async allCategories(): Promise<AllCategoriesOutput> {
@@ -57,27 +70,38 @@ export class RestaurantService {
         });
     }
 
-    async findCategoryBySlug({ slug }: CategoryInput): Promise<CategoryOutput> {
+    async findCategoryBySlug({ slug, page }: CategoryInput): Promise<CategoryOutput> {
         try {
-            const category  = await this.categories.findOne({
+            const findCategory  = await this.categories.findOne({
                 where: {
                     slug
-                },
-                relations: {
-                    restaurants: true
                 }
             });
 
-            if (!category) {
+            if (!findCategory) {
                 return {
                     GraphQLSucceed: true,
                     GraphQLError: "Couldn't find the category"
                 }
             }
 
+            const findRestaurants = await this.restaurants.find({
+                where: {
+                    category: {
+                        slug
+                    }
+                },
+                take: 25,
+                skip: (page - 1) * 25
+            })
+
+            const totalResults = await this.countRestaurants(findCategory);
+
             return {
                 GraphQLSucceed: true,
-                category
+                category: findCategory,
+                restaurants: findRestaurants,
+                totalPages: Math.ceil(totalResults / 25)
             }
         } catch {
             return {
