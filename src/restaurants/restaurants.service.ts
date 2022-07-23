@@ -1,10 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, Like, Raw } from "typeorm";
 import { User } from "src/users/entities/users.entity";
 import { Restaurant } from "./entities/restaurants.entity";
 import { Category } from "./entities/category.entity";
 import { AllRestaurantsInput, AllRestaurantsOutput } from "./dtos/all-restaurants.dto";
+import { RestaurantInput, RestaurantOutput } from "./dtos/restaurant.dto";
+import { SearchRestaurantInput, SearchRestaurantOutput } from "./dtos/search-restaurant.dto";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
 import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
@@ -22,6 +24,8 @@ export class RestaurantService {
         @InjectRepository(Category)
         private readonly categories: Repository<Category>
     ) {}
+
+    /* ------------------------ Restaurant Resolver ------------------------ */
     
     async allRestaurants({ page }: AllRestaurantsInput): Promise<AllRestaurantsOutput> {
         try {
@@ -44,83 +48,63 @@ export class RestaurantService {
         }
     }
 
-    async allCategories(): Promise<AllCategoriesOutput> {
+    async findRestaurantById({ restaurandId }: RestaurantInput): Promise<RestaurantOutput> {
         try {
+            const findRestaurant = await this.restaurants.findOne({
+                where: {
+                    id: restaurandId
+                }
+            });
+
+            if (!findRestaurant) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "The restaurant is not found"
+                }
+            }
+
             return {
                 GraphQLSucceed: true,
-                categories: await this.categories.find({
-                    relations: {
-                        restaurants: true
-                    }
-                })
+                restaurant: findRestaurant
             }
         } catch {
-            return {
+            return { 
                 GraphQLSucceed: false,
-                GraphQLError: "Couldn't load categories"
+                GraphQLError: "Couldn't find the restaurant"
             }
         }
     }
 
-    countRestaurants(category: Category) {
-        return this.categories.count({
-            where: {
-                id: category.id
-            }
-        });
-    }
-
-    async findCategoryBySlug({ slug, page }: CategoryInput): Promise<CategoryOutput> {
+    async searchRestaurantByName({ query, page }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
         try {
-            const findCategory  = await this.categories.findOne({
+            const [restaurants, totalResults] = await this.restaurants.findAndCount({
                 where: {
-                    slug
-                }
-            });
-
-            if (!findCategory) {
-                return {
-                    GraphQLSucceed: true,
-                    GraphQLError: "Couldn't find the category"
-                }
-            }
-
-            const findRestaurants = await this.restaurants.find({
-                where: {
-                    category: {
-                        slug
-                    }
+                    /* name: Like(`%${query}%`) */
+                    name: Raw(name => `${name} ILIKE '%${query}%'`)
                 },
                 take: 25,
-                skip: (page - 1) * 25
-            })
+                skip: ( page - 1 ) * 25
+            });
 
-            const totalResults = await this.countRestaurants(findCategory);
+            if (!restaurants) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "The Restaurant is not found"
+                }
+            }
 
             return {
                 GraphQLSucceed: true,
-                category: findCategory,
-                restaurants: findRestaurants,
+                restaurants,
+                totalResults,
                 totalPages: Math.ceil(totalResults / 25)
             }
         } catch {
             return {
                 GraphQLSucceed: false,
-                GraphQLError: "Couldn't load the category"
+                GraphQLError: "Couldn't find the restaurant"
             }
         }
-    };
-
-    async getOrCreateCategory(name: string): Promise<Category> {
-        const categoryName = name.trim().toLowerCase();
-        const categorySlug = categoryName.replace(/ /g, '-');
-        
-        let category = await this.categories.findOne({ where: { slug: categorySlug } });
-        if (!category) {
-            category = await this.categories.save(this.categories.create({ slug: categorySlug, name: categoryName }));
-        }
-
-        return category;
     }
 
     async createRestaurant(owner: User, createRestaurantInput: CreateRestaurantInput): Promise<CreateRestaurantOutput> {
@@ -223,5 +207,86 @@ export class RestaurantService {
                 GraphQLError: "Couldn't delete the restaurant"
             }
         }
+    }
+
+    /* ------------------------ Category Resolver ------------------------ */
+    
+    async allCategories(): Promise<AllCategoriesOutput> {
+        try {
+            return {
+                GraphQLSucceed: true,
+                categories: await this.categories.find({
+                    relations: {
+                        restaurants: true
+                    }
+                })
+            }
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't load categories"
+            }
+        }
+    }
+
+    countRestaurants(category: Category) {
+        return this.categories.count({
+            where: {
+                id: category.id
+            }
+        });
+    }
+
+    async findCategoryBySlug({ slug, page }: CategoryInput): Promise<CategoryOutput> {
+        try {
+            const findCategory  = await this.categories.findOne({
+                where: {
+                    slug
+                }
+            });
+
+            if (!findCategory) {
+                return {
+                    GraphQLSucceed: true,
+                    GraphQLError: "Couldn't find the category"
+                }
+            }
+
+            const findRestaurants = await this.restaurants.find({
+                where: {
+                    category: {
+                        slug
+                    }
+                },
+                take: 25,
+                skip: (page - 1) * 25
+            })
+
+            const totalResults = await this.countRestaurants(findCategory);
+
+            return {
+                GraphQLSucceed: true,
+                category: findCategory,
+                restaurants: findRestaurants,
+                totalPages: Math.ceil(totalResults / 25)
+            }
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't load the category"
+            }
+        }
+    };
+
+    async getOrCreateCategory(name: string): Promise<Category> {
+        const categoryName = name.trim().toLowerCase();
+        const categorySlug = categoryName.replace(/ /g, '-');
+        
+        let category = await this.categories.findOne({ where: { slug: categorySlug } });
+        if (!category) {
+            category = await this.categories.save(this.categories.create({ slug: categorySlug, name: categoryName }));
+        }
+
+        return category;
     }
 }

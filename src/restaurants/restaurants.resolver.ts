@@ -1,12 +1,13 @@
 import { Args, Resolver, Query, Mutation, ResolveField, Int, Parent} from "@nestjs/graphql";
-import { SetMetadata } from "@nestjs/common";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { Role } from "src/auth/role.decorator";
-import { User, UserRole } from "src/users/entities/users.entity";
+import { User } from "src/users/entities/users.entity";
 import { Restaurant } from "./entities/restaurants.entity";
 import { RestaurantService } from "./restaurants.service";
 import { Category } from "./entities/category.entity";
 import { AllRestaurantsInput, AllRestaurantsOutput } from "./dtos/all-restaurants.dto";
+import { RestaurantInput, RestaurantOutput } from "./dtos/restaurant.dto";
+import { SearchRestaurantInput, SearchRestaurantOutput } from "./dtos/search-restaurant.dto";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
 import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
@@ -29,11 +30,25 @@ export class RestaurantResolver {
         return this.restaurantService.allRestaurants(restaurantInput);
     }
 
+    @Query(returns => RestaurantOutput)
+    restaurant(
+        @Args("input") restaurantInput: RestaurantInput
+    ): Promise<RestaurantOutput> {
+        return this.restaurantService.findRestaurantById(restaurantInput);
+    }
+
+    @Query(returns => SearchRestaurantOutput)
+    searchRestaurant(
+        @Args("input") searchRestaurantInput: SearchRestaurantInput
+    ): Promise<SearchRestaurantOutput> {
+        return this.restaurantService.searchRestaurantByName(searchRestaurantInput);
+    }    
+
     /* @Mutation: https://docs.nestjs.com/graphql/mutations */
     /* @Args: https://docs.nestjs.com/graphql/resolvers#args-decInputtor-options */    
     @Mutation(returns => CreateRestaurantOutput)
     @Role(["Owner"])
-    async createRestaurant(
+    createRestaurant(
         @AuthUser() owner: User,
         @Args('input') createRestaurantInput: CreateRestaurantInput
     ): Promise<CreateRestaurantOutput> {
@@ -42,7 +57,7 @@ export class RestaurantResolver {
    
     @Mutation(returns => EditRestaurantOutput)
     @Role(["Owner"])
-    async editRestaurant(
+    editRestaurant(
         @AuthUser() owner: User,
         @Args('input') editRestaurantInput: EditRestaurantInput
     ): Promise<EditRestaurantOutput> {
@@ -51,7 +66,7 @@ export class RestaurantResolver {
 
     @Mutation(returns => DeleteRestaurantOutput)
     @Role(["Owner"])
-    async deleteRestaurant(
+    deleteRestaurant(
         @AuthUser() owner: User,
         @Args('input') deleteRestaurantInput: DeleteRestaurantInput
     ): Promise<DeleteRestaurantOutput> {
@@ -82,7 +97,7 @@ export class CategoryResolver {
 }
 
 /* 
------- Query Restaurants ------
+------ Query AllRestaurants ------
 query AllRestaurants {
     allRestaurants(input: {
         page: 1
@@ -94,6 +109,37 @@ query AllRestaurants {
         }
         totalPages
         totalResults
+    }
+}
+
+------ Query Restaurant ------
+query Restaurant {
+    restaurant (input: {
+        restaurandId: ***
+    }) {
+        GraphQLSucceed
+        GraphQLError
+        restaurant {
+            id
+            name
+        }
+    }
+}
+
+------ Query Search Restaurant ------
+query SearchRestaurant {
+    searchRestaurant (input: {
+        query: "***",
+        page: ***
+    }) {
+        GraphQLSucceed,
+        GraphQLError,
+        totalPages,
+        totalResults,
+        restaurants {
+            id,
+            name
+        }
     }
 }
 
