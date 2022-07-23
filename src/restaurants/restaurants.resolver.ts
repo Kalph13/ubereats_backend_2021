@@ -1,10 +1,13 @@
 import { Args, Resolver, Query, Mutation} from "@nestjs/graphql";
+import { SetMetadata } from "@nestjs/common";
 import { AuthUser } from "src/auth/auth-user.decorator";
-import { User } from "src/users/entities/users.entity";
+import { Role } from "src/auth/role.decorator";
+import { User, UserRole } from "src/users/entities/users.entity";
 import { Restaurant } from "./entities/restaurants.entity";
 import { RestaurantService } from "./restaurants.service";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
 import { UpdateRestaurantDto } from "./dtos/update-restaurant.dto";
+import { Category } from "./entities/category.entity";
 
 /* @Resolver: https://docs.nestjs.com/graphql/resolvers */
 /* - Similar to '*.resolvers.js' */
@@ -20,9 +23,15 @@ export class RestaurantResolver {
         return this.restaurantService.getAll();
     }
 
+    @Query(returns => [Category])
+    categories(): Promise<Category[]> {
+        return this.restaurantService.getCategories();
+    }
+
     /* @Mutation: https://docs.nestjs.com/graphql/mutations */
     /* @Args: https://docs.nestjs.com/graphql/resolvers#args-decInputtor-options */    
     @Mutation(returns => CreateRestaurantOutput)
+    @Role(["Owner"])
     async createRestaurant(
         @AuthUser() authUser: User,
         @Args('input') createRestaurantInput: CreateRestaurantInput
@@ -63,13 +72,32 @@ query Restaurants {
     }
 }
 
+------ Query Categories ------
+query Categories {
+    categories {
+        id
+        createdAt
+        updatedAt
+        name
+        coverImg
+        slug
+        restaurants {
+            name
+        }
+    }
+}
+
 ------ Mutation CreateRestaurant ------
 mutation CreateRestaurant {
     createRestaurant(input: {
         name: "***",
-        ownerName: "***",
+        coverImg: "***",
+        address: "***",
         categoryName: "***"
-    })
+    }) {
+        GraphQLSucceed
+        GraphQLError
+    }
 }
 
 ------ Mutation UpdateRestaurant ------

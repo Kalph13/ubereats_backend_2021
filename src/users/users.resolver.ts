@@ -11,6 +11,7 @@ import { VerifyEmailInput, VerifyEmailOutput } from "./dtos/verify-email.dto";
 import { UseGuards } from "@nestjs/common";
 import { AuthGuard } from "src/auth/auth.guard";
 import { AuthUser } from "src/auth/auth-user.decorator";
+import { Role } from "src/auth/role.decorator";
 
 @Resolver(of => User)
 export class UserResolver {
@@ -29,7 +30,9 @@ export class UserResolver {
         if (!context.user) return;
         else return context.user;
     } */
-    @UseGuards(AuthGuard)
+    /* Replaced by Role */
+    /* @UseGuards(AuthGuard) */
+    @Role(["Any"])
     async findMe(
         @AuthUser() authUser: User
     ) {
@@ -37,7 +40,9 @@ export class UserResolver {
     }
 
     @Query(returns => UserProfileOutput)
-    @UseGuards(AuthGuard)
+    /* Replaced by Role */
+    /* @UseGuards(AuthGuard) */
+    @Role(["Any"])
     async userProfile(
         @Args() userProfileInput: UserProfileInput
     ): Promise<UserProfileOutput> {
@@ -59,7 +64,9 @@ export class UserResolver {
     }
 
     @Mutation(returns => EditProfileOutput)
-    @UseGuards(AuthGuard)
+    /* Replaced by Role */
+    /* @UseGuards(AuthGuard) */
+    @Role(["Any"])
     async editProfile(
         @AuthUser() authUser: User,
         @Args('input') editProfileInput: EditProfileInput

@@ -10,7 +10,11 @@ import * as bcrypt from "bcrypt";
 /* type UserRole = 'client' | 'owner' | 'delivery'; */
 
 /* Enum: https://docs.nestjs.com/graphql/unions-and-enums#enums */
-enum UserRole { Client, Owner, Delivery }
+export enum UserRole {
+    Client = "Client",
+    Owner = "Owner",
+    Delivery = "Delivery"
+}
 registerEnumType(UserRole, { name: 'UserRole' });
 
 @InputType("UserInputType", { isAbstract: true })

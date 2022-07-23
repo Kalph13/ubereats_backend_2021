@@ -20,7 +20,20 @@ export class RestaurantService {
     ) {}
     
     getAll(): Promise<Restaurant[]> {
-        return this.restaurants.find();
+        return this.restaurants.find({
+            relations: {
+                category: true,
+                owner: true
+            }
+        });
+    }
+
+    getCategories(): Promise<Category[]> {
+        return this.categories.find({
+            relations: {
+                restaurants: true
+            }
+        });
     }
 
     async createRestaurant(owner: User, createRestaurantInput: CreateRestaurantInput): Promise<CreateRestaurantOutput> {

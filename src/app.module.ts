@@ -1,5 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { AuthModule } from './auth/auth.module';
 import { RestarantModule } from './restaurants/restaurants.module';
 import { Restaurant } from './restaurants/entities/restaurants.entity';
 import { Category } from './restaurants/entities/category.entity';
@@ -68,6 +69,7 @@ import * as Joi from 'joi';
       domain: process.env.MAILGUN_DOMAIN_NAME, /* sandbox***.mailgun.org */
       fromEmail: process.env.MAILGUN_FROM_EMAIL /* me@samples.mailgun.org */
     }),
+    AuthModule,
     UserModule,
     RestarantModule
   ],

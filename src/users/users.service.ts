@@ -30,7 +30,11 @@ export class UserService {
     ) {}
 
     async getAll(): Promise<User[]> {
-        return this.users.find();
+        return this.users.find({
+            relations: {
+                restaurants: true
+            }
+        });
     }
     
     async findById(id: number): Promise<UserProfileOutput> {

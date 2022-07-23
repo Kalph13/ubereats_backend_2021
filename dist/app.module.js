@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const apollo_1 = require("@nestjs/apollo");
+const auth_module_1 = require("./auth/auth.module");
 const restaurants_module_1 = require("./restaurants/restaurants.module");
 const restaurants_entity_1 = require("./restaurants/entities/restaurants.entity");
 const category_entity_1 = require("./restaurants/entities/category.entity");
@@ -71,6 +72,7 @@ AppModule = __decorate([
                 domain: process.env.MAILGUN_DOMAIN_NAME,
                 fromEmail: process.env.MAILGUN_FROM_EMAIL
             }),
+            auth_module_1.AuthModule,
             users_module_1.UserModule,
             restaurants_module_1.RestarantModule
         ],
