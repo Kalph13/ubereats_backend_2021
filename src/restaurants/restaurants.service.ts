@@ -6,6 +6,7 @@ import { Restaurant } from "./entities/restaurants.entity";
 import { Category } from "./entities/category.entity";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/create-restaurant.dto";
 import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restaurant.dto";
+import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
 
 /* @Injectable: https://docs.nestjs.com/pipes#pipes */
 @Injectable()
@@ -110,5 +111,43 @@ export class RestaurantService {
                 GraphQLError: "Couldn't edit the restaurant"
             }
         };
+    }
+
+    async deleteRestaurant(owner: User, deleteRestaurantInput: DeleteRestaurantInput): Promise<DeleteRestaurantOutput> {
+        try {
+            const deletedRestaurant = await this.restaurants.findOne({
+                where: {
+                    id: deleteRestaurantInput.restaurantId
+                }
+            })
+
+            if (!deletedRestaurant) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "Couldn't find the restaurant"
+                }
+            }
+
+            if (owner.id !== deletedRestaurant.ownerId) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "You're not authorized"
+                }
+            }
+
+            await this.restaurants.delete({
+                id: deletedRestaurant.id
+            });
+
+            return {
+                GraphQLSucceed: true
+            }
+
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't delete the restaurant"
+            }
+        }
     }
 }
