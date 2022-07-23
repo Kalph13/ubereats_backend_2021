@@ -8,7 +8,7 @@ import { IsBoolean, IsString, IsOptional, Length } from "class-validator";
 
 /* TypeORM Entity: https://typeorm.io/entities */
 /* - Similar to 'prisma.schema' */
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, RelationId, PrimaryGeneratedColumn } from "typeorm";
 
 /* @InputType: https://docs.nestjs.com/graphql/mapped-types (Must be Declared Before @ObjectType) */
 /* @ObjectType: https://docs.nestjs.com/graphql/resolvers#object-types */
@@ -28,7 +28,7 @@ export class Restaurant extends CoreEntity {
     @IsString()
     coverImg: string;
 
-    @Field(type => String, { defaultValue: "seoul" })
+    @Field(type => String, /* { defaultValue: "seoul" } */)
     @Column()
     @IsString()
     address: string;
@@ -48,6 +48,9 @@ export class Restaurant extends CoreEntity {
         { onDelete: "CASCADE" }
     )
     owner: User;
+
+    @RelationId((restaurant: Restaurant) => restaurant.owner)
+    ownerId: number;
 
     /* @PrimaryGeneratedColumn()
     @Field(type => Number)
