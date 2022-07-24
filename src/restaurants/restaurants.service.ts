@@ -4,6 +4,7 @@ import { Repository, Like, Raw } from "typeorm";
 import { User } from "src/users/entities/users.entity";
 import { Restaurant } from "./entities/restaurants.entity";
 import { Category } from "./entities/category.entity";
+import { Dish } from "./entities/dish.entity";
 import { AllRestaurantsInput, AllRestaurantsOutput } from "./dtos/all-restaurants.dto";
 import { RestaurantInput, RestaurantOutput } from "./dtos/restaurant.dto";
 import { SearchRestaurantInput, SearchRestaurantOutput } from "./dtos/search-restaurant.dto";
@@ -12,6 +13,7 @@ import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restauran
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
 import { AllCategoriesOutput } from "./dtos/all-categories.dto";
 import { CategoryInput, CategoryOutput } from "./dtos/category.dto";
+import { CreateDishInput, CreateDishOutput } from "./dtos/create-dish.dto";
 
 /* @Injectable: https://docs.nestjs.com/pipes#pipes */
 @Injectable()
@@ -22,7 +24,9 @@ export class RestaurantService {
         @InjectRepository(Restaurant)
         private readonly restaurants: Repository<Restaurant>,
         @InjectRepository(Category)
-        private readonly categories: Repository<Category>
+        private readonly categories: Repository<Category>,
+        @InjectRepository(Dish)
+        private readonly dishes: Repository<Dish>
     ) {}
 
     /* ------------------------ Restaurant Resolver ------------------------ */
@@ -53,6 +57,9 @@ export class RestaurantService {
             const findRestaurant = await this.restaurants.findOne({
                 where: {
                     id: restaurandId
+                },
+                relations: {
+                    menu: true
                 }
             });
 
@@ -288,5 +295,46 @@ export class RestaurantService {
         }
 
         return category;
+    }
+
+    /* ------------------------ Dish Resolver ------------------------ */
+
+    async createDish(owner: User, createDishInput: CreateDishInput): Promise<CreateDishOutput> {
+        try {
+            const findRestaurant = await this.restaurants.findOne({
+                where: {
+                    id: createDishInput.restaurantId
+                }
+            });
+
+            if (!findRestaurant) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "The restaurant is not found"
+                }
+            }
+
+            if (owner.id !== findRestaurant.ownerId) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "You're not authorized"
+                }
+            }
+
+            const newDish = this.dishes.create({
+                ...createDishInput,
+                restaurant: findRestaurant
+            }); 
+            await this.dishes.save(newDish);
+            
+            return { 
+                GraphQLSucceed: true
+            }
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't Create Dish"
+            }
+        }
     }
 }

@@ -3,8 +3,9 @@ import { AuthUser } from "src/auth/auth-user.decorator";
 import { Role } from "src/auth/role.decorator";
 import { User } from "src/users/entities/users.entity";
 import { Restaurant } from "./entities/restaurants.entity";
-import { RestaurantService } from "./restaurants.service";
 import { Category } from "./entities/category.entity";
+import { Dish } from "./entities/dish.entity";
+import { RestaurantService } from "./restaurants.service";
 import { AllRestaurantsInput, AllRestaurantsOutput } from "./dtos/all-restaurants.dto";
 import { RestaurantInput, RestaurantOutput } from "./dtos/restaurant.dto";
 import { SearchRestaurantInput, SearchRestaurantOutput } from "./dtos/search-restaurant.dto";
@@ -13,6 +14,7 @@ import { EditRestaurantInput, EditRestaurantOutput } from "./dtos/edit-restauran
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-restaurant.dto";
 import { AllCategoriesOutput } from "./dtos/all-categories.dto";
 import { CategoryInput, CategoryOutput } from "./dtos/category.dto";
+import { CreateDishInput, CreateDishOutput } from "./dtos/create-dish.dto";
 
 /* @Resolver: https://docs.nestjs.com/graphql/resolvers */
 /* - Similar to '*.resolvers.js' */
@@ -96,6 +98,22 @@ export class CategoryResolver {
     }
 }
 
+@Resolver(of => Dish)
+export class DishResolver {
+    constructor (
+        private readonly restaurantService: RestaurantService
+    ) {}
+
+    @Mutation(returns => CreateDishOutput)
+    @Role(["Owner"])
+    createDish(
+        @AuthUser() owner: User,
+        @Args("input") createDishInput: CreateDishInput
+    ): Promise<CreateDishOutput> {
+        return this.restaurantService.createDish(owner, createDishInput);
+    }
+}
+
 /* 
 ------ Query AllRestaurants ------
 query AllRestaurants {
@@ -126,7 +144,7 @@ query Restaurant {
     }
 }
 
------- Query Search Restaurant ------
+------ Query SearchRestaurant ------
 query SearchRestaurant {
     searchRestaurant (input: {
         query: "***",
@@ -205,6 +223,27 @@ mutation EditRestaurant {
 ------ Mutation DeleteRestaurant ------
 mutation DeleteRestaurant {
     deleteRestaurant(input: {
+        restaurantId: ***
+    }) {
+        GraphQLSucceed
+        GraphQLError
+    }
+}
+
+------ Mutation CreateDish ------
+mutation CreateDish {
+    createDish(input: {
+        name: "***",
+        price: ***,
+        description: "***",
+        options: {
+            name: "***",
+            extra: ***,
+            choices: {
+                name: "***",
+                extra: ***
+            }
+        },
         restaurantId: ***
     }) {
         GraphQLSucceed
