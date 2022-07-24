@@ -2,13 +2,14 @@ import { ObjectType, InputType, Field } from "@nestjs/graphql";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { Category } from "./category.entity";
 import { User } from "src/users/entities/users.entity";
+import { Dish } from "./dish.entity";
 
 /* Class Validator: https://docs.nestjs.com/pipes#class-validator */
 import { IsBoolean, IsString, IsOptional, Length } from "class-validator";
 
 /* TypeORM Entity: https://typeorm.io/entities */
 /* - Similar to 'prisma.schema' */
-import { Column, Entity, ManyToOne, RelationId, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, RelationId, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 
 /* @InputType: https://docs.nestjs.com/graphql/mapped-types (Must be Declared Before @ObjectType) */
 /* @ObjectType: https://docs.nestjs.com/graphql/resolvers#object-types */
@@ -51,6 +52,13 @@ export class Restaurant extends CoreEntity {
 
     @RelationId((restaurant: Restaurant) => restaurant.owner)
     ownerId: number;
+
+    @Field(type => [Dish])
+    @OneToMany(
+        type => Dish,
+        dish => dish.restaurant
+    )
+    menu: Dish[];
 
     /* @PrimaryGeneratedColumn()
     @Field(type => Number)
