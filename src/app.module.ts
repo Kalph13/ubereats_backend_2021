@@ -1,16 +1,18 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './users/users.module';
 import { RestarantModule } from './restaurants/restaurants.module';
+import { OrderModule } from './orders/orders.module';
+import { MailModule } from './mail/mail.module';
+import { JwtModule } from './jwt/jwt.module';
+import { JwtMiddleware } from './jwt/jwt.middleware';
+import { User } from './users/entities/users.entity';
+import { Verification } from './users/entities/verification.entity';
 import { Restaurant } from './restaurants/entities/restaurants.entity';
 import { Category } from './restaurants/entities/category.entity';
 import { Dish } from './restaurants/entities/dish.entity';
-import { UserModule } from './users/users.module';
-import { User } from './users/entities/users.entity';
-import { JwtModule } from './jwt/jwt.module';
-import { JwtMiddleware } from './jwt/jwt.middleware';
-import { Verification } from './users/entities/verification.entity';
-import { MailModule } from './mail/mail.module';
+import { Order } from './orders/entities/order.entity';
 
 /* GraphQL in NextJS: https://docs.nestjs.com/graphql/quick-start */
 /* GraphQL Playground: http://localhost:3000/graphql */
@@ -55,7 +57,7 @@ import * as Joi from 'joi';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod', /* Must be False in Production (Causes Production Data Loss) */
       logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-      entities: [User, Verification, Restaurant, Category, Dish]
+      entities: [User, Verification, Restaurant, Category, Dish, Order]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -72,7 +74,8 @@ import * as Joi from 'joi';
     }),
     AuthModule,
     UserModule,
-    RestarantModule
+    RestarantModule,
+    OrderModule
   ],
   controllers: [],
   providers: []

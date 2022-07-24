@@ -10,16 +10,18 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const apollo_1 = require("@nestjs/apollo");
 const auth_module_1 = require("./auth/auth.module");
+const users_module_1 = require("./users/users.module");
 const restaurants_module_1 = require("./restaurants/restaurants.module");
+const orders_module_1 = require("./orders/orders.module");
+const mail_module_1 = require("./mail/mail.module");
+const jwt_module_1 = require("./jwt/jwt.module");
+const jwt_middleware_1 = require("./jwt/jwt.middleware");
+const users_entity_1 = require("./users/entities/users.entity");
+const verification_entity_1 = require("./users/entities/verification.entity");
 const restaurants_entity_1 = require("./restaurants/entities/restaurants.entity");
 const category_entity_1 = require("./restaurants/entities/category.entity");
 const dish_entity_1 = require("./restaurants/entities/dish.entity");
-const users_module_1 = require("./users/users.module");
-const users_entity_1 = require("./users/entities/users.entity");
-const jwt_module_1 = require("./jwt/jwt.module");
-const jwt_middleware_1 = require("./jwt/jwt.middleware");
-const verification_entity_1 = require("./users/entities/verification.entity");
-const mail_module_1 = require("./mail/mail.module");
+const order_entity_1 = require("./orders/entities/order.entity");
 const graphql_1 = require("@nestjs/graphql");
 const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
@@ -58,7 +60,7 @@ AppModule = __decorate([
                 database: process.env.DB_DATABASE,
                 synchronize: process.env.NODE_ENV !== 'prod',
                 logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-                entities: [users_entity_1.User, verification_entity_1.Verification, restaurants_entity_1.Restaurant, category_entity_1.Category, dish_entity_1.Dish]
+                entities: [users_entity_1.User, verification_entity_1.Verification, restaurants_entity_1.Restaurant, category_entity_1.Category, dish_entity_1.Dish, order_entity_1.Order]
             }),
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
@@ -75,7 +77,8 @@ AppModule = __decorate([
             }),
             auth_module_1.AuthModule,
             users_module_1.UserModule,
-            restaurants_module_1.RestarantModule
+            restaurants_module_1.RestarantModule,
+            orders_module_1.OrderModule
         ],
         controllers: [],
         providers: []

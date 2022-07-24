@@ -3,6 +3,7 @@ import { CoreEntity } from "src/common/entities/core.entity";
 import { Category } from "./category.entity";
 import { User } from "src/users/entities/users.entity";
 import { Dish } from "./dish.entity";
+import { Order } from "src/orders/entities/order.entity";
 
 /* Class Validator: https://docs.nestjs.com/pipes#class-validator */
 import { IsBoolean, IsString, IsOptional, Length } from "class-validator";
@@ -59,6 +60,13 @@ export class Restaurant extends CoreEntity {
         dish => dish.restaurant
     )
     menu: Dish[];
+
+    @Field(type => [Order])
+    @OneToMany(
+        type => Order,
+        order => order.restaurant
+    )
+    orders: Order[];
 
     /* @PrimaryGeneratedColumn()
     @Field(type => Number)

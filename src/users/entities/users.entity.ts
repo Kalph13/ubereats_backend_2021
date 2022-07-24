@@ -3,6 +3,7 @@ import { InternalServerErrorException, Res } from "@nestjs/common";
 import { Entity, Column, BeforeInsert, BeforeUpdate, OneToMany } from "typeorm";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { Restaurant } from "src/restaurants/entities/restaurants.entity";
+import { Order } from "src/orders/entities/order.entity";
 import { IsEmail, IsEnum, IsBoolean, IsString } from "class-validator";
 import * as bcrypt from "bcrypt";
 
@@ -51,6 +52,20 @@ export class User extends CoreEntity {
         restaurant => restaurant.owner
     )
     restaurants: Restaurant[];
+
+    @Field(type => [Order])
+    @OneToMany(
+        type => Order,
+        order => order.customer
+    )
+    orders: [Order];
+
+    @Field(type => [Order])
+    @OneToMany(
+        type => Order,
+        order => order.driver
+    )
+    rides: [Order];    
 
     /* @BeforeInsert: https://typeorm.io/listeners-and-subscribers#beforeinsert */
     @BeforeInsert()
