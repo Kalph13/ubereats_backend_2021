@@ -14,6 +14,8 @@ import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-res
 import { AllCategoriesOutput } from "./dtos/all-categories.dto";
 import { CategoryInput, CategoryOutput } from "./dtos/category.dto";
 import { CreateDishInput, CreateDishOutput } from "./dtos/create-dish.dto";
+import { EditDishInput, EditDishOutput } from "./dtos/edit-dish.dto";
+import { DeleteDishInput, DeleteDishOutput } from "./dtos/delete-dish.dto";
 
 /* @Injectable: https://docs.nestjs.com/pipes#pipes */
 @Injectable()
@@ -334,6 +336,87 @@ export class RestaurantService {
             return {
                 GraphQLSucceed: false,
                 GraphQLError: "Couldn't Create Dish"
+            }
+        }
+    }
+
+    async editDish(owner: User, editDishInput: EditDishInput): Promise<EditDishOutput> {
+        try {
+            const editedDish = await this.dishes.findOne({
+                where: {
+                    id: editDishInput.dishId
+                },
+                relations: {
+                    restaurant: true
+                }
+            });
+
+            if (!editedDish) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "Couldn't find the dish"
+                }
+            }
+
+            if (editedDish.restaurant.ownerId !== owner.id) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "You're not authorized"
+                }
+            }
+
+            await this.dishes.save({
+                id: editDishInput.dishId,
+                ...editDishInput
+            });
+
+            return {
+                GraphQLSucceed: true
+            }
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't edit the dish"
+            }
+        }
+    }
+
+    async deleteDish(owner: User, deleteDishInput: DeleteDishInput): Promise<DeleteDishOutput> {
+        try {
+            const deletedDish = await this.dishes.findOne({
+                where: {
+                    id: deleteDishInput.dishId
+                },
+                relations: {
+                    restaurant: true
+                }
+            });
+
+            if (!deletedDish) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "Couldn't find the dish"
+                }
+            }
+
+            if (deletedDish.restaurant.ownerId !== owner.id) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "You're not authorized"
+                }
+            }
+
+            await this.dishes.delete({
+                id: deleteDishInput.dishId
+            });
+
+            return {
+                GraphQLSucceed: true
+            }
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't delete the dish"
             }
         }
     }

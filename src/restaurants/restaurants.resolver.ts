@@ -15,6 +15,8 @@ import { DeleteRestaurantInput, DeleteRestaurantOutput } from "./dtos/delete-res
 import { AllCategoriesOutput } from "./dtos/all-categories.dto";
 import { CategoryInput, CategoryOutput } from "./dtos/category.dto";
 import { CreateDishInput, CreateDishOutput } from "./dtos/create-dish.dto";
+import { EditDishInput, EditDishOutput } from "./dtos/edit-dish.dto";
+import { DeleteDishInput, DeleteDishOutput } from "./dtos/delete-dish.dto";
 
 /* @Resolver: https://docs.nestjs.com/graphql/resolvers */
 /* - Similar to '*.resolvers.js' */
@@ -111,6 +113,24 @@ export class DishResolver {
         @Args("input") createDishInput: CreateDishInput
     ): Promise<CreateDishOutput> {
         return this.restaurantService.createDish(owner, createDishInput);
+    }
+
+    @Mutation(returns => EditDishOutput)
+    @Role(["Owner"])
+    editDish(
+        @AuthUser() owner: User,
+        @Args("input") editDishInput: EditDishInput
+    ): Promise<EditDishOutput> {
+        return this.restaurantService.editDish(owner, editDishInput);
+    }
+
+    @Mutation(returns => DeleteDishOutput)
+    @Role(["Owner"])
+    deleteDish(
+        @AuthUser() owner: User,
+        @Args("input") deleteDishInput: DeleteDishInput
+    ): Promise<DeleteDishOutput> {
+        return this.restaurantService.deleteDish(owner, deleteDishInput);
     }
 }
 
@@ -245,6 +265,37 @@ mutation CreateDish {
             }
         },
         restaurantId: ***
+    }) {
+        GraphQLSucceed
+        GraphQLError
+    }
+}
+
+------ Mutation EditDish ------
+mutation EditDish {
+    editDish (input: {
+        name: "***",
+        price: ***,
+        description: "***",
+        options: {
+            name: "***",
+            extra: ***,
+            choices: {
+                name: "***",
+                extra: ***
+            }
+        },
+        dishId: ***
+    }) {
+        GraphQLSucceed
+        GraphQLError
+    }
+}
+
+------ Mutation DeleteDish ------
+mutation DeleteDish {
+    deleteDish (input: {
+        dishId: ***
     }) {
         GraphQLSucceed
         GraphQLError
