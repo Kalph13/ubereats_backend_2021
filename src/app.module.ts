@@ -13,6 +13,7 @@ import { Restaurant } from './restaurants/entities/restaurants.entity';
 import { Category } from './restaurants/entities/category.entity';
 import { Dish } from './restaurants/entities/dish.entity';
 import { Order } from './orders/entities/order.entity';
+import { OrderItem } from './orders/entities/order-item.entity';
 
 /* GraphQL in NextJS: https://docs.nestjs.com/graphql/quick-start */
 /* GraphQL Playground: http://localhost:3000/graphql */
@@ -57,7 +58,7 @@ import * as Joi from 'joi';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod', /* Must be False in Production (Causes Production Data Loss) */
       logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-      entities: [User, Verification, Restaurant, Category, Dish, Order]
+      entities: [User, Verification, Restaurant, Category, Dish, Order, OrderItem]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

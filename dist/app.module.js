@@ -22,6 +22,7 @@ const restaurants_entity_1 = require("./restaurants/entities/restaurants.entity"
 const category_entity_1 = require("./restaurants/entities/category.entity");
 const dish_entity_1 = require("./restaurants/entities/dish.entity");
 const order_entity_1 = require("./orders/entities/order.entity");
+const order_item_entity_1 = require("./orders/entities/order-item.entity");
 const graphql_1 = require("@nestjs/graphql");
 const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
@@ -60,7 +61,7 @@ AppModule = __decorate([
                 database: process.env.DB_DATABASE,
                 synchronize: process.env.NODE_ENV !== 'prod',
                 logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-                entities: [users_entity_1.User, verification_entity_1.Verification, restaurants_entity_1.Restaurant, category_entity_1.Category, dish_entity_1.Dish, order_entity_1.Order]
+                entities: [users_entity_1.User, verification_entity_1.Verification, restaurants_entity_1.Restaurant, category_entity_1.Category, dish_entity_1.Dish, order_entity_1.Order, order_item_entity_1.OrderItem]
             }),
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
