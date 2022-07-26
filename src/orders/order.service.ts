@@ -259,23 +259,26 @@ export class OrderService {
 
             let canEditOrder = true;
 
+            /* Client Can't Change Status */
             if (user.role === UserRole.Client) {
                 canEditOrder = false;
             } 
 
+            /* Owner Can Change Status Only into 'Cooking' or 'Cooked' */
             if (user.role === UserRole.Owner) {
                 if (status !== OrderStatus.Cooking && status !== OrderStatus.Cooked) {
                     canEditOrder = false;
                 }
             }
 
+            /* Driver Can Change Status Only into 'PickedUp' or 'Delivered' */
             if (user.role === UserRole.Delivery) {
                 if (status !== OrderStatus.PickedUp && status !== OrderStatus.Delivered) {
                     canEditOrder = false;
                 }
             }
 
-            if (!canEditOrder === false) {
+            if (!canEditOrder) {
                 return {
                     GraphQLSucceed: false,
                     GraphQLError: "You can't edit the order"
