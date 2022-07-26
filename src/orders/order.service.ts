@@ -2,13 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User, UserRole } from "src/users/entities/users.entity";
 import { Repository } from "typeorm";
-import { Order } from "./entities/order.entity";
+import { Order, OrderStatus } from "./entities/order.entity";
 import { OrderItem } from "./entities/order-item.entity";
 import { Restaurant } from "src/restaurants/entities/restaurants.entity";
 import { Dish } from "src/restaurants/entities/dish.entity";
 import { GetOrderInput, GetOrderOutput } from "./dtos/get-order.dto";
 import { GetOrdersInput, GetOrdersOutput } from "./dtos/get-orders.dto";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/create-order.dto";
+import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
 
 @Injectable()
 export class OrderService {
@@ -22,6 +23,27 @@ export class OrderService {
         @InjectRepository(Dish)
         private readonly dishes: Repository<Dish>
     ) {}
+
+    canSeeOrder(user: User, order: Order): boolean {
+        let canSeeOrder = true;
+
+        if (user.role === UserRole.Client && order.customerId !== user.id) {
+            console.log("------ Get Order ------ order.customerId:", order.customerId);
+            canSeeOrder = false;
+        }
+
+        if (user.role === UserRole.Delivery && order.driverId !== user.id) {
+            console.log("------ Get Order ------ order.driverId:", order.driverId);
+            canSeeOrder = false;
+        }
+
+        if (user.role === UserRole.Owner && order.restaurant.ownerId !== user.id) {
+            console.log("------ Get Order ------ order.restaurant.ownerId:", order.restaurant.ownerId);
+            canSeeOrder = false;
+        }
+
+        return canSeeOrder;
+    };
 
     async getOrder(user: User, { id: orderId }: GetOrderInput): Promise<GetOrderOutput> {
         try {
@@ -41,24 +63,7 @@ export class OrderService {
                 }
             }
 
-            let authorization = true;
-
-            if (user.role === UserRole.Client && order.customerId !== user.id) {
-                console.log("------ Get Order ------ order.customerId:", order.customerId);
-                authorization = false;
-            }
-
-            if (user.role === UserRole.Delivery && order.driverId !== user.id) {
-                console.log("------ Get Order ------ order.driverId:", order.driverId);
-                authorization = false;
-            }
-
-            if (user.role === UserRole.Owner && order.restaurant.ownerId !== user.id) {
-                console.log("------ Get Order ------ order.restaurant.ownerId:", order.restaurant.ownerId);
-                authorization = false;
-            }
-
-            if (!authorization) {
+            if (!this.canSeeOrder(user, order)) {
                 return {
                     GraphQLSucceed: false,
                     GraphQLError: "You're not authorized"
@@ -226,4 +231,70 @@ export class OrderService {
             };
         }
     };
+
+    async editOrder(user: User, { id: orderId, status }: EditOrderInput): Promise<EditOrderOutput> {
+        try {
+            const order = await this.orders.findOne({
+                where: {
+                    id: orderId
+                },
+                relations: {
+                    restaurant: true
+                }
+            });
+
+            if (!order) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "Couldn't find the order"
+                }
+            }
+
+            if (!this.canSeeOrder(user, order)) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "You're not authorized"
+                }
+            }
+
+            let canEditOrder = true;
+
+            if (user.role === UserRole.Client) {
+                canEditOrder = false;
+            } 
+
+            if (user.role === UserRole.Owner) {
+                if (status !== OrderStatus.Cooking && status !== OrderStatus.Cooked) {
+                    canEditOrder = false;
+                }
+            }
+
+            if (user.role === UserRole.Delivery) {
+                if (status !== OrderStatus.PickedUp && status !== OrderStatus.Delivered) {
+                    canEditOrder = false;
+                }
+            }
+
+            if (!canEditOrder === false) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "You can't edit the order"
+                }
+            }
+
+            await this.orders.save([{
+                id: orderId,
+                status
+            }]);
+
+            return {
+                GraphQLSucceed: true
+            }
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't edit the order"
+            }
+        }
+    }
 }
