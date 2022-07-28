@@ -28,6 +28,9 @@ import { ConfigModule } from '@nestjs/config';
 /* Data Validation: https://www.npmjs.com/package/joi */
 import * as Joi from 'joi';
 
+/* Authentication over WebSockets: https://docs.nestjs.com/graphql/subscriptions#authentication-over-websockets */
+import { Context } from 'apollo-server-core';
+
 /* Decorator (e.g. @Module): (1) Connects 'Classes' and 'Metadata' (2) Enables NestJS to Create a Routing Map */
 /* @Module: https://docs.nestjs.com/modules#modules */
 @Module({
@@ -57,13 +60,50 @@ import * as Joi from 'joi';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod', /* Must be False in Production (Causes Production Data Loss) */
-      logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
+      /* logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test', */
       entities: [User, Verification, Restaurant, Category, Dish, Order, OrderItem]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
-      context: ({ req }) => ({ user: req['user'] })
+      /* Authentication over WebSockets: https://docs.nestjs.com/graphql/subscriptions#authentication-over-websockets */
+      /* Using 'subscriptions-transport-ws': Will be Deprecated */
+      /* installSubscriptionHandlers: true,
+      subscriptions: {
+        'subscriptions-transport-ws': {
+          path: "/graphql",
+          onConnect: connectionParams => {
+            console.log("------ AppModule ------ connectionParams:", connectionParams);
+            return connectionParams;
+          }
+        }
+      }, */
+      /* Using 'graphql-ws': Recommended */
+      subscriptions: {
+        'graphql-ws': {
+          path: "/graphql",
+          onConnect: (context: Context<any>) => {
+            const { connectionParams, extra } = context
+            console.log("------ AppModule Subscription------ context.connectionParams:", connectionParams);
+            extra.params = context.connectionParams;
+          }
+        }
+      },
+      context: ({ req, extra }) => {
+        const LOGINTOKEN_KEY = "x-jwt";
+        if (req) {
+          console.log("------ AppModule ------ req.headers['x-jwt']:", req.headers[LOGINTOKEN_KEY]);
+          return {
+            loggedInUser: req['loggedInUser'],
+            loginToken: req.headers[LOGINTOKEN_KEY]
+          };
+        } else {
+          console.log("------ AppModule ------ extra.params['x-jwt']:", extra.params[LOGINTOKEN_KEY]);
+          return {
+            loginToken: extra.params[LOGINTOKEN_KEY]
+          }
+        }
+      }
     }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY
@@ -82,8 +122,10 @@ import * as Joi from 'joi';
   providers: []
 })
 /* Middleware: https://docs.nestjs.com/middleware#middleware */
-export class AppModule implements NestModule {
+/* Moved to AuthGuard to Use Subscription */
+/* export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(JwtMiddleware).forRoutes({ path: '/graphql', method: RequestMethod.POST })
   }
-}
+} */
+export class AppModule {}

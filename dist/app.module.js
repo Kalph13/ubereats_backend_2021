@@ -15,7 +15,6 @@ const restaurants_module_1 = require("./restaurants/restaurants.module");
 const orders_module_1 = require("./orders/orders.module");
 const mail_module_1 = require("./mail/mail.module");
 const jwt_module_1 = require("./jwt/jwt.module");
-const jwt_middleware_1 = require("./jwt/jwt.middleware");
 const users_entity_1 = require("./users/entities/users.entity");
 const verification_entity_1 = require("./users/entities/verification.entity");
 const restaurants_entity_1 = require("./restaurants/entities/restaurants.entity");
@@ -28,9 +27,6 @@ const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
 const Joi = require("joi");
 let AppModule = class AppModule {
-    configure(consumer) {
-        consumer.apply(jwt_middleware_1.JwtMiddleware).forRoutes({ path: '/graphql', method: common_1.RequestMethod.POST });
-    }
 };
 AppModule = __decorate([
     (0, common_1.Module)({
@@ -60,13 +56,37 @@ AppModule = __decorate([
                 password: process.env.DB_PASSWORD,
                 database: process.env.DB_DATABASE,
                 synchronize: process.env.NODE_ENV !== 'prod',
-                logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
                 entities: [users_entity_1.User, verification_entity_1.Verification, restaurants_entity_1.Restaurant, category_entity_1.Category, dish_entity_1.Dish, order_entity_1.Order, order_item_entity_1.OrderItem]
             }),
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
                 autoSchemaFile: true,
-                context: ({ req }) => ({ user: req['user'] })
+                subscriptions: {
+                    'graphql-ws': {
+                        path: "/graphql",
+                        onConnect: (context) => {
+                            const { connectionParams, extra } = context;
+                            console.log("------ AppModule Subscription------ context.connectionParams:", connectionParams);
+                            extra.params = context.connectionParams;
+                        }
+                    }
+                },
+                context: ({ req, extra }) => {
+                    const LOGINTOKEN_KEY = "x-jwt";
+                    if (req) {
+                        console.log("------ AppModule ------ req.headers['x-jwt']:", req.headers[LOGINTOKEN_KEY]);
+                        return {
+                            loggedInUser: req['loggedInUser'],
+                            loginToken: req.headers[LOGINTOKEN_KEY]
+                        };
+                    }
+                    else {
+                        console.log("------ AppModule ------ extra.params['x-jwt']:", extra.params[LOGINTOKEN_KEY]);
+                        return {
+                            loginToken: extra.params[LOGINTOKEN_KEY]
+                        };
+                    }
+                }
             }),
             jwt_module_1.JwtModule.forRoot({
                 privateKey: process.env.PRIVATE_KEY

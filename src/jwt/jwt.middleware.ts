@@ -11,6 +11,7 @@ export class JwtMiddleware implements NestMiddleware {
         private readonly userService: UserService
     ) {}
 
+    /* Decode Information of the LoggedInUser from LoginToken */
     async use(req: Request, res: Response, next: NextFunction) {
         console.log("------ JwtMiddleware ------ req.headers['x-jwt']:", req.headers['x-jwt']);
 
@@ -22,7 +23,7 @@ export class JwtMiddleware implements NestMiddleware {
                 if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
                     const loggedInUser = await this.userService.findById(decoded['id']);
                     if (loggedInUser.GraphQLSucceed) {
-                        req['user'] = loggedInUser;
+                        req['loggedInUser'] = loggedInUser;
                     }
                 }
             } catch (e) {
