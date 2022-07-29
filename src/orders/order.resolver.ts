@@ -10,6 +10,7 @@ import { GetOrdersInput, GetOrdersOutput } from "./dtos/get-orders.dto";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/create-order.dto";
 import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
 import { OrderUpdateInput } from "./dtos/order-update.dto";
+import { TakeOrderInput, TakeOrderOutput } from "./dtos/take-order.dto";
 
 /* PubSub: https://docs.nestjs.com/graphql/subscriptions#pubsub */
 import { PubSub } from "graphql-subscriptions"
@@ -57,6 +58,15 @@ export class OrderResolver {
         @Args("input") editOrderInput: EditOrderInput
     ): Promise<EditOrderOutput> {
         return this.orderService.editOrder(customer, editOrderInput);
+    }
+
+    @Mutation(returns => TakeOrderOutput)
+    @Role(["Delivery"])
+    async takeOrder(
+        @AuthUser() driver: User,
+        @Args("input") takeOrderInput: TakeOrderInput
+    ): Promise<TakeOrderOutput> {
+        return this.orderService.takeOrder(driver, takeOrderInput);
     }
 
     @Subscription(returns => Order, {

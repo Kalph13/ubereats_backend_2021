@@ -10,6 +10,7 @@ import { GetOrderInput, GetOrderOutput } from "./dtos/get-order.dto";
 import { GetOrdersInput, GetOrdersOutput } from "./dtos/get-orders.dto";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/create-order.dto";
 import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
+import { TakeOrderInput, TakeOrderOutput } from "./dtos/take-order.dto";
 
 /* PubSub: https://docs.nestjs.com/graphql/subscriptions#pubsub */
 import { PubSub } from "graphql-subscriptions"
@@ -325,6 +326,48 @@ export class OrderService {
                 GraphQLSucceed: false,
                 GraphQLError: "Couldn't edit the order"
             };
+        }
+    }
+
+    async takeOrder ( driver: User, { id: orderId }: TakeOrderInput ): Promise<TakeOrderOutput> {
+        try {
+            const order = await this.orders.findOne({
+                where: {
+                    id: orderId
+                }
+            });
+
+            if (!order) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "Couldn't find the order"
+                }
+            }
+
+            if (order.driver) {
+                return {
+                    GraphQLSucceed: false,
+                    GraphQLError: "The order is already taken by another driver"
+                }
+            }
+
+            await this.orders.save({
+                id: order.id,
+                driver
+            });
+
+            await this.pubSub.publish(NEW_ORDER_UPDATE, {
+                orderUpdates: { ...order, driver }
+            });
+
+            return {
+                GraphQLSucceed: true
+            };
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't take the order"
+            }
         }
     }
 }
