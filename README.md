@@ -35,3 +35,11 @@ The Backend of Uber Eats Clone
 - Create Dish
 - Edit Dish
 - Delete Dish
+
+## Orders Subscription
+- Pending Orders (Owner)
+- Pickup Orders (Delivery)
+- Order Status (Customer, Delivery, Owner)
+- Add Driver to Order
+
+## Payments (CRON)

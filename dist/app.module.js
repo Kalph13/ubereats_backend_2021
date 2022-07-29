@@ -15,6 +15,7 @@ const restaurants_module_1 = require("./restaurants/restaurants.module");
 const orders_module_1 = require("./orders/orders.module");
 const mail_module_1 = require("./mail/mail.module");
 const jwt_module_1 = require("./jwt/jwt.module");
+const common_module_1 = require("./common/common.module");
 const users_entity_1 = require("./users/entities/users.entity");
 const verification_entity_1 = require("./users/entities/verification.entity");
 const restaurants_entity_1 = require("./restaurants/entities/restaurants.entity");
@@ -99,7 +100,8 @@ AppModule = __decorate([
             auth_module_1.AuthModule,
             users_module_1.UserModule,
             restaurants_module_1.RestarantModule,
-            orders_module_1.OrderModule
+            orders_module_1.OrderModule,
+            common_module_1.CommonModule
         ],
         controllers: [],
         providers: []

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User, UserRole } from "src/users/entities/users.entity";
 import { Repository } from "typeorm";
@@ -11,6 +11,10 @@ import { GetOrdersInput, GetOrdersOutput } from "./dtos/get-orders.dto";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/create-order.dto";
 import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
 
+/* PubSub: https://docs.nestjs.com/graphql/subscriptions#pubsub */
+import { PubSub } from "graphql-subscriptions"
+import { PUB_SUB, NEW_PENDING_ORDER, NEW_COOKED_ORDER, NEW_ORDER_UPDATE } from "src/common/common.constants";
+
 @Injectable()
 export class OrderService {
     constructor(
@@ -21,7 +25,9 @@ export class OrderService {
         @InjectRepository(Restaurant)
         private readonly restaurants: Repository<Restaurant>,
         @InjectRepository(Dish)
-        private readonly dishes: Repository<Dish>
+        private readonly dishes: Repository<Dish>,
+        @Inject(PUB_SUB)
+        private readonly pubSub: PubSub
     ) {}
 
     canSeeOrder(user: User, order: Order): boolean {
@@ -214,12 +220,19 @@ export class OrderService {
                 orderItems.push(orderItem);
             };
 
-            await this.orders.save(this.orders.create({
+            const order = await this.orders.save(this.orders.create({
                 customer,
                 restaurant,
                 total: orderPrice,
                 items: orderItems
             }));
+
+            await this.pubSub.publish(NEW_PENDING_ORDER, {
+                pendingOrders: {
+                    order,
+                    ownerId: restaurant.ownerId    
+                }
+            });
 
             return {
                 GraphQLSucceed: true
@@ -238,23 +251,23 @@ export class OrderService {
                 where: {
                     id: orderId
                 },
-                relations: {
+                /* relations: {
                     restaurant: true
-                }
+                } */
             });
 
             if (!order) {
                 return {
                     GraphQLSucceed: false,
                     GraphQLError: "Couldn't find the order"
-                }
+                };
             }
 
             if (!this.canSeeOrder(user, order)) {
                 return {
                     GraphQLSucceed: false,
                     GraphQLError: "You're not authorized"
-                }
+                };
             }
 
             let canEditOrder = true;
@@ -282,22 +295,36 @@ export class OrderService {
                 return {
                     GraphQLSucceed: false,
                     GraphQLError: "You can't edit the order"
+                };
+            }
+
+            await this.orders.save({
+                id: orderId,
+                status
+            });
+
+            const newOrder = { ...order, status };
+
+            if (user.role === UserRole.Owner) {
+                if (status === OrderStatus.Cooked) {
+                    await this.pubSub.publish(NEW_COOKED_ORDER, {
+                        cookedOrder: newOrder
+                    });
                 }
             }
 
-            await this.orders.save([{
-                id: orderId,
-                status
-            }]);
+            await this.pubSub.publish(NEW_ORDER_UPDATE, {
+                orderUpdates: newOrder
+            });
 
             return {
                 GraphQLSucceed: true
-            }
+            };
         } catch {
             return {
                 GraphQLSucceed: false,
                 GraphQLError: "Couldn't edit the order"
-            }
+            };
         }
     }
 }

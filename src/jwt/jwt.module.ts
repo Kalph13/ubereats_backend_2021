@@ -11,13 +11,10 @@ export class JwtModule {
         return {
             module: JwtModule,
             /* Custom Provider: https://docs.nestjs.com/fundamentals/custom-providers#value-providers-usevalue */
-            providers: [
-                {
-                    provide: CONFIG_OPTIONS,
-                    useValue: options
-                },
-                JwtService
-            ],
+            providers: [{
+                provide: CONFIG_OPTIONS,
+                useValue: options
+            }, JwtService],
             exports: [JwtService]
         }
     }

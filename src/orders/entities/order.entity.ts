@@ -15,6 +15,8 @@ export enum OrderStatus {
 }
 registerEnumType(OrderStatus, { name: "OrderStatus" });
 
+/* Eager and Lazy Relations: https://typeorm.io/eager-and-lazy-relations */
+/* Without 'eager: true': query getOrders returns 'null's for relations fields (customer, driver, restaurant, and items) */ 
 @InputType("OrderInputType", { isAbstract: true })
 @ObjectType()
 @Entity()
@@ -23,7 +25,7 @@ export class Order extends CoreEntity {
     @ManyToOne(
         type => User,
         user => user.orders,
-        { onDelete: "SET NULL", nullable: true }
+        { onDelete: "SET NULL", nullable: true, eager: true }
     )
     customer?: User;
 
@@ -34,7 +36,7 @@ export class Order extends CoreEntity {
     @ManyToOne(
         type => User,
         user => user.rides,
-        { onDelete: "SET NULL", nullable: true }
+        { onDelete: "SET NULL", nullable: true, eager: true }
     )
     driver?: User;
 
@@ -45,12 +47,12 @@ export class Order extends CoreEntity {
     @ManyToOne(
         type => Restaurant,
         restaurant => restaurant.orders,
-        { onDelete: "SET NULL", nullable: true }
+        { onDelete: "SET NULL", nullable: true, eager: true }
     )
     restaurant?: Restaurant;
 
     @Field(type => [OrderItem])
-    @ManyToMany(type => OrderItem)
+    @ManyToMany(type => OrderItem, { eager: true })
     @JoinTable()
     items: OrderItem[];
 

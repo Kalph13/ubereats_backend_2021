@@ -7,6 +7,7 @@ import { OrderModule } from './orders/orders.module';
 import { MailModule } from './mail/mail.module';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
+import { CommonModule } from './common/common.module';
 import { User } from './users/entities/users.entity';
 import { Verification } from './users/entities/verification.entity';
 import { Restaurant } from './restaurants/entities/restaurants.entity';
@@ -116,7 +117,8 @@ import { Context } from 'apollo-server-core';
     AuthModule,
     UserModule,
     RestarantModule,
-    OrderModule
+    OrderModule,
+    CommonModule
   ],
   controllers: [],
   providers: []
