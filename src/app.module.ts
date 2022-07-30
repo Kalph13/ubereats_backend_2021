@@ -8,6 +8,7 @@ import { MailModule } from './mail/mail.module';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { CommonModule } from './common/common.module';
+import { PaymentModule } from './payments/payments.module';
 import { User } from './users/entities/users.entity';
 import { Verification } from './users/entities/verification.entity';
 import { Restaurant } from './restaurants/entities/restaurants.entity';
@@ -15,6 +16,7 @@ import { Category } from './restaurants/entities/category.entity';
 import { Dish } from './restaurants/entities/dish.entity';
 import { Order } from './orders/entities/order.entity';
 import { OrderItem } from './orders/entities/order-item.entity';
+import { Payment } from './payments/entities/payment.entity';
 
 /* GraphQL in NextJS: https://docs.nestjs.com/graphql/quick-start */
 /* GraphQL Playground: http://localhost:3000/graphql */
@@ -62,7 +64,7 @@ import { Context } from 'apollo-server-core';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod', /* Must be False in Production (Causes Production Data Loss) */
       /* logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test', */
-      entities: [User, Verification, Restaurant, Category, Dish, Order, OrderItem]
+      entities: [User, Verification, Restaurant, Category, Dish, Order, OrderItem, Payment]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -118,7 +120,8 @@ import { Context } from 'apollo-server-core';
     UserModule,
     RestarantModule,
     OrderModule,
-    CommonModule
+    CommonModule,
+    PaymentModule
   ],
   controllers: [],
   providers: []
