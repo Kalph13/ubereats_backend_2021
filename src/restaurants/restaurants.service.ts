@@ -36,6 +36,9 @@ export class RestaurantService {
     async allRestaurants({ page }: AllRestaurantsInput): Promise<AllRestaurantsOutput> {
         try {
             const [restaurants, totalResults] = await this.restaurants.findAndCount({
+                order: {
+                    isPromoted: "DESC"
+                },
                 take: 25,
                 skip: (page - 1) * 25
             });
@@ -266,6 +269,9 @@ export class RestaurantService {
                     category: {
                         slug
                     }
+                },
+                order: {
+                    isPromoted: "DESC"
                 },
                 take: 25,
                 skip: (page - 1) * 25

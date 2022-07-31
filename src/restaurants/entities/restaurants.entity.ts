@@ -68,6 +68,14 @@ export class Restaurant extends CoreEntity {
     )
     orders: Order[];
 
+    @Field(type => Boolean)
+    @Column({ default: true })
+    isPromoted: boolean;
+
+    @Field(type => Date, { nullable: true })
+    @Column({ nullable: true })
+    promotedUntil: Date;
+
     /* @PrimaryGeneratedColumn()
     @Field(type => Number)
     id: number;

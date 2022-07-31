@@ -28,6 +28,7 @@ const payment_entity_1 = require("./payments/entities/payment.entity");
 const graphql_1 = require("@nestjs/graphql");
 const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
+const schedule_1 = require("@nestjs/schedule");
 const Joi = require("joi");
 let AppModule = class AppModule {
 };
@@ -91,6 +92,7 @@ AppModule = __decorate([
                     }
                 }
             }),
+            schedule_1.ScheduleModule.forRoot(),
             jwt_module_1.JwtModule.forRoot({
                 privateKey: process.env.PRIVATE_KEY
             }),

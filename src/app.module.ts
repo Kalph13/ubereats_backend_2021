@@ -28,6 +28,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 /* ConfigModule: https://docs.nestjs.com/techniques/configuration */
 import { ConfigModule } from '@nestjs/config';
 
+/* Task Scheduling: https://docs.nestjs.com/techniques/task-scheduling */
+import { ScheduleModule } from '@nestjs/schedule';
+
 /* Data Validation: https://www.npmjs.com/package/joi */
 import * as Joi from 'joi';
 
@@ -108,6 +111,7 @@ import { Context } from 'apollo-server-core';
         }
       }
     }),
+    ScheduleModule.forRoot(),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY
     }),
