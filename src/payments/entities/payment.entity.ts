@@ -19,6 +19,7 @@ export class Payment extends CoreEntity {
     )
     user: User;
 
+    @Field(type => Int)
     @RelationId((payment: Payment) => payment.user)
     userId: number;
 

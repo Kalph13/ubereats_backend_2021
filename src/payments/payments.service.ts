@@ -5,6 +5,7 @@ import { User } from "src/users/entities/users.entity";
 import { Restaurant } from "src/restaurants/entities/restaurants.entity";
 import { Payment } from "./entities/payment.entity";
 import { CreatePaymentInput, CreatePaymentOutput } from "./dtos/create-payment.dto";
+import { GetPaymentsOutput } from "./dtos/get-payments.dto";
 
 @Injectable()
 export class PaymentService {
@@ -14,6 +15,30 @@ export class PaymentService {
         @InjectRepository(Restaurant)
         private readonly restaurants: Repository<Restaurant>
     ) {}
+
+    async getPayments(owner: User): Promise<GetPaymentsOutput> {
+        try {
+            const payments = await this.payments.find({
+                where: {
+                    restaurant: {
+                        owner: {
+                            id: owner.id
+                        }
+                    }
+                }
+            });
+
+            return {
+                GraphQLSucceed: true,
+                payments
+            }
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't find payments"
+            }
+        }
+    }
 
     async createPayment(owner: User, { transactionId, restaurantId }: CreatePaymentInput): Promise<CreatePaymentOutput> {
         try {
