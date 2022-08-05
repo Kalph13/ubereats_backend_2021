@@ -13,7 +13,7 @@ async function bootstrap() {
   /* Global Scoped Pipes: https://docs.nestjs.com/pipes#global-scoped-pipes */
   app.useGlobalPipes(new ValidationPipe());
   /* app.use(JwtMiddleware); */
-  await app.listen(3000);
+  await app.listen(4000);
 }
 
 bootstrap();

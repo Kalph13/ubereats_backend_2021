@@ -17,6 +17,7 @@ import { CategoryInput, CategoryOutput } from "./dtos/category.dto";
 import { CreateDishInput, CreateDishOutput } from "./dtos/create-dish.dto";
 import { EditDishInput, EditDishOutput } from "./dtos/edit-dish.dto";
 import { DeleteDishInput, DeleteDishOutput } from "./dtos/delete-dish.dto";
+import { MyRestaurantsOutput } from "./dtos/my-restaurants.dto";
 
 /* @Resolver: https://docs.nestjs.com/graphql/resolvers */
 /* - Similar to '*.resolvers.js' */
@@ -39,6 +40,14 @@ export class RestaurantResolver {
         @Args("input") restaurantInput: RestaurantInput
     ): Promise<RestaurantOutput> {
         return this.restaurantService.findRestaurantById(restaurantInput);
+    }
+
+    @Query(returns => MyRestaurantsOutput)
+    @Role(["Owner"])
+    myRestaurants(
+        @AuthUser() owner: User
+    ): Promise<MyRestaurantsOutput> {
+        return this.restaurantService.myRestaurants(owner);
     }
 
     @Query(returns => SearchRestaurantOutput)
