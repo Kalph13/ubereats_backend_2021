@@ -21,4 +21,7 @@ export class CreateOrderInput {
 }
 
 @ObjectType()
-export class CreateOrderOutput extends GraphQLOutput {}
+export class CreateOrderOutput extends GraphQLOutput {
+    @Field(type => Int, { nullable: true })
+    orderId?: number;
+}

@@ -1,4 +1,4 @@
-import { ArgsType, Field, InputType, ObjectType, PickType } from "@nestjs/graphql";
+import { ArgsType, Field, InputType, Int, ObjectType, PickType } from "@nestjs/graphql";
 import { IsBoolean, IsString, Length } from "class-validator";
 import { Restaurant } from "../entities/restaurants.entity";
 import { GraphQLOutput } from "src/common/dtos/output.dto";
@@ -16,7 +16,10 @@ export class CreateRestaurantInput extends PickType(Restaurant, [
 }
 
 @ObjectType()
-export class CreateRestaurantOutput extends GraphQLOutput {}
+export class CreateRestaurantOutput extends GraphQLOutput {
+    @Field(type => Int, { nullable: true })
+    restaurantId?: number;
+}
 
 /* @ArgsType: https://docs.nestjs.com/graphql/resolvers#args-decorator-options */
 /* - Similar to '*.typeDefs.js' of Resolver */

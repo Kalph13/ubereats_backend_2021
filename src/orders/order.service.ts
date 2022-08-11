@@ -198,7 +198,7 @@ export class OrderService {
                         if (dishOption.extra) {
                             dishPrice = dishPrice + dishOption.extra;
                         } else {
-                            const dishOptionChoice = dishOption.choices.find(
+                            const dishOptionChoice = dishOption.choices?.find(
                                 dishOptionChoice => dishOptionChoice.name === itemOption.choice
                             );
 
@@ -236,7 +236,8 @@ export class OrderService {
             });
 
             return {
-                GraphQLSucceed: true
+                GraphQLSucceed: true,
+                orderId: order.id
             };
         } catch {
             return {

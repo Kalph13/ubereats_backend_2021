@@ -17,6 +17,7 @@ const mail_module_1 = require("./mail/mail.module");
 const jwt_module_1 = require("./jwt/jwt.module");
 const common_module_1 = require("./common/common.module");
 const payments_module_1 = require("./payments/payments.module");
+const uploads_module_1 = require("./uploads/uploads.module");
 const users_entity_1 = require("./users/entities/users.entity");
 const verification_entity_1 = require("./users/entities/verification.entity");
 const restaurants_entity_1 = require("./restaurants/entities/restaurants.entity");
@@ -49,7 +50,10 @@ AppModule = __decorate([
                     PRIVATE_KEY: Joi.string().required(),
                     MAILGUN_API_KEY: Joi.string().required(),
                     MAILGUN_DOMAIN_NAME: Joi.string().required(),
-                    MAILGUN_FROM_EMAIL: Joi.string().required()
+                    MAILGUN_FROM_EMAIL: Joi.string().required(),
+                    AWS_BUCKET: Joi.string().required(),
+                    AWS_KEY: Joi.string().required(),
+                    AWS_SECRET: Joi.string().required()
                 })
             }),
             typeorm_1.TypeOrmModule.forRoot({
@@ -106,7 +110,8 @@ AppModule = __decorate([
             restaurants_module_1.RestarantModule,
             orders_module_1.OrderModule,
             common_module_1.CommonModule,
-            payments_module_1.PaymentModule
+            payments_module_1.PaymentModule,
+            uploads_module_1.UploadsModule
         ],
         controllers: [],
         providers: []

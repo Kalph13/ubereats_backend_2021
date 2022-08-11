@@ -17,6 +17,7 @@ import { CreateDishInput, CreateDishOutput } from "./dtos/create-dish.dto";
 import { EditDishInput, EditDishOutput } from "./dtos/edit-dish.dto";
 import { DeleteDishInput, DeleteDishOutput } from "./dtos/delete-dish.dto";
 import { MyRestaurantsOutput } from "./dtos/my-restaurants.dto";
+import { MyRestaurantInput, MyRestaurantOutput } from "./dtos/my-restaurant.dto";
 
 /* @Injectable: https://docs.nestjs.com/pipes#pipes */
 @Injectable()
@@ -110,6 +111,29 @@ export class RestaurantService {
         }
     }
 
+    async myRestaurant(owner: User, myRestaurantInput: MyRestaurantInput): Promise<MyRestaurantOutput> {
+        try {
+            const restaurant = await this.restaurants.findOne({
+                where: {
+                    id: myRestaurantInput.id,
+                    owner: {
+                        id: owner.id
+                    }
+                }
+            });
+
+            return {
+                GraphQLSucceed: true,
+                restaurant
+            }
+        } catch {
+            return {
+                GraphQLSucceed: false,
+                GraphQLError: "Couldn't find the restaurant"
+            }
+        }
+    };
+
     async searchRestaurantByName({ query, page }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
         try {
             const [restaurants, totalResults] = await this.restaurants.findAndCount({
@@ -150,7 +174,8 @@ export class RestaurantService {
             await this.restaurants.save(newRestaurant);
             
             return { 
-                GraphQLSucceed: true
+                GraphQLSucceed: true,
+                restaurantId: newRestaurant.id
             }
         } catch (GraphQLError) {
             return {

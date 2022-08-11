@@ -12,6 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   /* Global Scoped Pipes: https://docs.nestjs.com/pipes#global-scoped-pipes */
   app.useGlobalPipes(new ValidationPipe());
+  app.enableCors();
   /* app.use(JwtMiddleware); */
   await app.listen(4000);
 }

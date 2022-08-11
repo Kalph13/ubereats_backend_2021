@@ -9,6 +9,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { CommonModule } from './common/common.module';
 import { PaymentModule } from './payments/payments.module';
+import { UploadsModule } from './uploads/uploads.module';
 import { User } from './users/entities/users.entity';
 import { Verification } from './users/entities/verification.entity';
 import { Restaurant } from './restaurants/entities/restaurants.entity';
@@ -55,7 +56,10 @@ import { Context } from 'apollo-server-core';
         PRIVATE_KEY: Joi.string().required(),
         MAILGUN_API_KEY: Joi.string().required(),
         MAILGUN_DOMAIN_NAME: Joi.string().required(),
-        MAILGUN_FROM_EMAIL: Joi.string().required()
+        MAILGUN_FROM_EMAIL: Joi.string().required(),
+        AWS_BUCKET: Joi.string().required(),
+        AWS_KEY: Joi.string().required(),
+        AWS_SECRET: Joi.string().required()
       })
     }),
     TypeOrmModule.forRoot({
@@ -125,7 +129,8 @@ import { Context } from 'apollo-server-core';
     RestarantModule,
     OrderModule,
     CommonModule,
-    PaymentModule
+    PaymentModule,
+    UploadsModule
   ],
   controllers: [],
   providers: []
