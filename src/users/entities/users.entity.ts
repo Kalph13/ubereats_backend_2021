@@ -60,7 +60,7 @@ export class User extends CoreEntity {
         type => Order,
         order => order.customer
     )
-    orders: [Order];
+    orders: Order[];
     
     @Field(type => [Payment])
     @OneToMany(
@@ -75,7 +75,7 @@ export class User extends CoreEntity {
         type => Order,
         order => order.driver
     )
-    rides: [Order];    
+    rides: Order[];
 
     /* @BeforeInsert: https://typeorm.io/listeners-and-subscribers#beforeinsert */
     @BeforeInsert()

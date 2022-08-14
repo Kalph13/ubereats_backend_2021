@@ -59,7 +59,9 @@ export class OrderService {
                     id: orderId
                 },
                 relations: {
-                    restaurant: true
+                    restaurant: true,
+                    customer: true,
+                    driver: true
                 }
             });
 
