@@ -93,9 +93,13 @@ import { Context } from 'apollo-server-core';
         'graphql-ws': {
           path: "/graphql",
           onConnect: (context: Context<any>) => {
-            const { connectionParams, extra } = context
-            console.log("------ AppModule Subscription------ context.connectionParams:", connectionParams);
-            extra.params = context.connectionParams;
+            const { connectionParams, extra } = context;
+            console.log("------ AppModule Subscription ------ Connected:", connectionParams);
+            extra.params = connectionParams;
+          },
+          onDisconnect: (context: Context<any>) => {
+            const { connectionParams } = context;
+            console.log("------ AppModule Subscription ------ Disconnected:", connectionParams);
           }
         }
       },

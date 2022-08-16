@@ -35,17 +35,14 @@ export class OrderService {
         let canSeeOrder = true;
 
         if (user.role === UserRole.Client && order.customerId !== user.id) {
-            console.log("------ Get Order ------ order.customerId:", order.customerId);
             canSeeOrder = false;
         }
 
         if (user.role === UserRole.Delivery && order.driverId !== user.id) {
-            console.log("------ Get Order ------ order.driverId:", order.driverId);
             canSeeOrder = false;
         }
 
         if (user.role === UserRole.Owner && order.restaurant.ownerId !== user.id) {
-            console.log("------ Get Order ------ order.restaurant.ownerId:", order.restaurant.ownerId);
             canSeeOrder = false;
         }
 
@@ -255,9 +252,9 @@ export class OrderService {
                 where: {
                     id: orderId
                 },
-                /* relations: {
+                relations: {
                     restaurant: true
-                } */
+                }
             });
 
             if (!order) {
@@ -308,9 +305,12 @@ export class OrderService {
             });
 
             const newOrder = { ...order, status };
+            console.log("------ Edit Order ------ newOrder:", newOrder);
 
             if (user.role === UserRole.Owner) {
+                console.log("------ Edit Order ------ user.role:", user.role);
                 if (status === OrderStatus.Cooked) {
+                    console.log("------ Edit Order ------ status:", status);
                     await this.pubSub.publish(NEW_COOKED_ORDER, {
                         cookedOrder: newOrder
                     });
@@ -318,7 +318,7 @@ export class OrderService {
             }
 
             await this.pubSub.publish(NEW_ORDER_UPDATE, {
-                orderUpdates: newOrder
+                orderUpdate: newOrder,
             });
 
             return {
@@ -360,7 +360,7 @@ export class OrderService {
             });
 
             await this.pubSub.publish(NEW_ORDER_UPDATE, {
-                orderUpdates: { ...order, driver }
+                orderUpdate: { ...order, driver }
             });
 
             return {

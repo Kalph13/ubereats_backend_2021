@@ -74,8 +74,12 @@ AppModule = __decorate([
                         path: "/graphql",
                         onConnect: (context) => {
                             const { connectionParams, extra } = context;
-                            console.log("------ AppModule Subscription------ context.connectionParams:", connectionParams);
-                            extra.params = context.connectionParams;
+                            console.log("------ AppModule Subscription ------ Connected:", connectionParams);
+                            extra.params = connectionParams;
+                        },
+                        onDisconnect: (context) => {
+                            const { connectionParams } = context;
+                            console.log("------ AppModule Subscription ------ Disconnected:", connectionParams);
                         }
                     }
                 },
