@@ -97,10 +97,6 @@ export class OrderResolver {
             { input }: { input: OrderUpdateInput },
             { loggedInUser: { user } }: { loggedInUser: { user: User } } /* Get 'loggedInUser' From the Context ('context' of GraphQLModule in 'app.module.ts') */
         ) => {
-            console.log("------ Subscription Filter ------ loggedInUser.id", user.id);
-            console.log("------ Subscription Filter ------ driverId", order.driverId);
-            console.log("------ Subscription Filter ------ customerId", order.customerId);
-            console.log("------ Subscription Filter ------ ownerId", order.restaurant.ownerId);
             if (
                 order.driverId !== user.id &&
                 order.customerId !== user.id &&
@@ -117,7 +113,7 @@ export class OrderResolver {
     orderUpdate(
         @Args("input") orderUpdateInput: OrderUpdateInput
     ) {
-        console.log("------ orderUpdate ------ orderUpdateInput:", orderUpdateInput);
+        console.log("------ Order Update ------ orderUpdateInput:", orderUpdateInput);
         return this.pubSub.asyncIterator(NEW_ORDER_UPDATE);
     }
 }

@@ -305,12 +305,9 @@ export class OrderService {
             });
 
             const newOrder = { ...order, status };
-            console.log("------ Edit Order ------ newOrder:", newOrder);
 
             if (user.role === UserRole.Owner) {
-                console.log("------ Edit Order ------ user.role:", user.role);
                 if (status === OrderStatus.Cooked) {
-                    console.log("------ Edit Order ------ status:", status);
                     await this.pubSub.publish(NEW_COOKED_ORDER, {
                         cookedOrder: newOrder
                     });
