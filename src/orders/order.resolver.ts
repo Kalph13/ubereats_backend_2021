@@ -80,14 +80,14 @@ export class OrderResolver {
     })
     @Role(["Owner"])
     pendingOrders() {
-        console.log("------ pendingOrders ------ Start");
+        console.log("------ Pending Orders ------ Start");
         return this.pubSub.asyncIterator(NEW_PENDING_ORDER);
     }
 
     @Subscription(returns => Order)
     @Role(["Delivery"])
     cookedOrders() {
-        console.log("------ cookedOrders ------ Start");
+        console.log("------ Cooked Orders ------ Start");
         return this.pubSub.asyncIterator(NEW_COOKED_ORDER);
     }
 

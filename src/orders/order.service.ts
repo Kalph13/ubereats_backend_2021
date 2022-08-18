@@ -253,6 +253,8 @@ export class OrderService {
                     id: orderId
                 },
                 relations: {
+                    customer: true,
+                    driver: true,
                     restaurant: true
                 }
             });
@@ -309,7 +311,7 @@ export class OrderService {
             if (user.role === UserRole.Owner) {
                 if (status === OrderStatus.Cooked) {
                     await this.pubSub.publish(NEW_COOKED_ORDER, {
-                        cookedOrder: newOrder
+                        cookedOrders: newOrder
                     });
                 }
             }
