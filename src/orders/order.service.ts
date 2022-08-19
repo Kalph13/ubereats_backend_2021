@@ -157,6 +157,9 @@ export class OrderService {
             const restaurant = await this.restaurants.findOne({
                 where: {
                     id: restaurantId
+                },
+                relations: {
+                    owner: true
                 }
             });
 
@@ -227,6 +230,8 @@ export class OrderService {
                 items: orderItems
             }));
 
+            console.log("------ Pending Order ------ ownerId", restaurant.ownerId);
+
             await this.pubSub.publish(NEW_PENDING_ORDER, {
                 pendingOrders: {
                     order,
@@ -258,6 +263,8 @@ export class OrderService {
                     restaurant: true
                 }
             });
+
+            console.log("------ Edit Order ------ ownerId:", order.restaurant.ownerId);
 
             if (!order) {
                 return {
@@ -336,8 +343,15 @@ export class OrderService {
             const order = await this.orders.findOne({
                 where: {
                     id: orderId
+                },
+                relations: {
+                    customer: true,
+                    driver: true,
+                    restaurant: true
                 }
             });
+
+            console.log("------ Take Order ------ ownerId:", order.restaurant.ownerId);
 
             if (!order) {
                 return {
