@@ -42,11 +42,11 @@ AppModule = __decorate([
                 ignoreEnvFile: process.env.NODE_ENV === 'prod',
                 validationSchema: Joi.object({
                     NODE_ENV: Joi.string().valid('dev', 'prod', 'test').required(),
-                    DB_HOST: Joi.string().required(),
-                    DB_PORT: Joi.string().required(),
-                    DB_USERNAME: Joi.string().required(),
-                    DB_PASSWORD: Joi.string().required(),
-                    DB_DATABASE: Joi.string().required(),
+                    DB_HOST: Joi.string(),
+                    DB_PORT: Joi.string(),
+                    DB_USERNAME: Joi.string(),
+                    DB_PASSWORD: Joi.string(),
+                    DB_DATABASE: Joi.string(),
                     PRIVATE_KEY: Joi.string().required(),
                     MAILGUN_API_KEY: Joi.string().required(),
                     MAILGUN_DOMAIN_NAME: Joi.string().required(),
@@ -56,16 +56,16 @@ AppModule = __decorate([
                     AWS_SECRET: Joi.string().required()
                 })
             }),
-            typeorm_1.TypeOrmModule.forRoot({
-                type: 'postgres',
+            typeorm_1.TypeOrmModule.forRoot(Object.assign(Object.assign({ type: 'postgres' }, (process.env.DATABASE_URL ?
+                {
+                    url: process.env.DATABASE_URL
+                } : {
                 host: process.env.DB_HOST,
                 port: +process.env.DB_PORT,
                 username: process.env.DB_USERNAME,
                 password: process.env.DB_PASSWORD,
-                database: process.env.DB_DATABASE,
-                synchronize: process.env.NODE_ENV !== 'prod',
-                entities: [users_entity_1.User, verification_entity_1.Verification, restaurants_entity_1.Restaurant, category_entity_1.Category, dish_entity_1.Dish, order_entity_1.Order, order_item_entity_1.OrderItem, payment_entity_1.Payment]
-            }),
+                database: process.env.DB_DATABASE
+            })), { synchronize: process.env.NODE_ENV !== 'prod', entities: [users_entity_1.User, verification_entity_1.Verification, restaurants_entity_1.Restaurant, category_entity_1.Category, dish_entity_1.Dish, order_entity_1.Order, order_item_entity_1.OrderItem, payment_entity_1.Payment] })),
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
                 autoSchemaFile: true,
